@@ -1,0 +1,89 @@
+/* MoneyMitra App Styles */
+
+/* Custom utilities that complement Tailwind */
+.glassmorphism {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gradient-teal {
+  background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+}
+
+/* Animation for button interactions */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 0.3s ease-in-out;
+}
+
+/* Message bubble animations */
+@keyframes message-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.message-animate {
+  animation: message-slide-in 0.5s ease-out;
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Chat-specific styles */
+.chat-message {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Custom scrollbar for chat area */
+.chat-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Subtle pattern background for message area */
+.message-area-bg {
+  background-color: #fafafa;
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(156, 163, 175, 0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+}
