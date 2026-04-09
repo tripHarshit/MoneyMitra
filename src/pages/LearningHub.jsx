@@ -295,9 +295,9 @@ const LearningHub = () => {
               <div className="rounded-3xl border-2 border-amber-300 bg-white p-1 panel-shadow">
                 <div className="rounded-[1.35rem] bg-[#ffdcc3]/40 p-6 text-center">
                   <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-[#8d4b00] text-3xl font-black text-white shadow">
-                    {level + 1}
+                    {level}
                   </div>
-                  <h4 className="font-headline text-2xl font-extrabold text-[#2f1500]">Level {level + 1} Unlocked</h4>
+                  <h4 className="font-headline text-2xl font-extrabold text-[#2f1500]">Level {level} Unlocked</h4>
                   <p className="mt-1 text-sm text-[#6e3900]">You have reached a stronger learning tier.</p>
 
                   <div className="mt-5 space-y-3 text-left">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -255,25 +255,21 @@ function GoalCalculator() {
   const [rate, setRate] = useState(12)
   const [motivation, setMotivation] = useState('')
   const [motivLoading, setMotivLoading] = useState(false)
-  const [lastFetchKey, setLastFetchKey] = useState('')
 
   const monthlyRate = rate / 12 / 100
   const requiredSIP = monthlyRate === 0
     ? target / months
     : (target * monthlyRate) / ((Math.pow(1 + monthlyRate, months) - 1) * (1 + monthlyRate))
 
-  const fetchKey = `${target}-${months}`
-
-  const fetchMotivation = useCallback(async () => {
-    if (fetchKey === lastFetchKey) return
-    setLastFetchKey(fetchKey)
+  const fetchMotivation = async () => {
+    if (motivLoading) return
     setMotivLoading(true)
     setMotivation('')
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY
       const prompt = `User wants to save ₹${fmt(target)} in ${months} months. Give one encouraging sentence under 20 words.`
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -288,13 +284,7 @@ function GoalCalculator() {
     } finally {
       setMotivLoading(false)
     }
-  }, [fetchKey, lastFetchKey, target, months])
-
-  // Debounce: fetch motivation 800ms after user stops changing target/months
-  useEffect(() => {
-    const t = setTimeout(() => { fetchMotivation() }, 800)
-    return () => clearTimeout(t)
-  }, [target, months, fetchMotivation])
+  }
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -312,19 +302,29 @@ function GoalCalculator() {
           <p className="mt-1 text-sm text-emerald-700">for {months} months at {rate}% p.a.</p>
         </div>
 
-        <div className="rounded-2xl border border-amber-200/60 bg-amber-50/60 p-4 min-h-18 flex items-center gap-3">
+        <button
+          onClick={fetchMotivation}
+          disabled={motivLoading}
+          className="w-full rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-50 flex items-center justify-center gap-2"
+        >
           {motivLoading ? (
-            <div className="flex items-center gap-2 text-amber-700">
-              <div className="h-4 w-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-              <span className="text-sm">Getting motivation from AI…</span>
-            </div>
-          ) : motivation ? (
             <>
-              <span className="text-xl">✨</span>
-              <p className="text-sm font-medium text-amber-900 italic">"{motivation}"</p>
+              <div className="h-4 w-4 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+              Getting motivation from AI…
             </>
-          ) : null}
-        </div>
+          ) : (
+            <>
+              <span>✨</span> Get AI Motivation
+            </>
+          )}
+        </button>
+
+        {motivation && !motivLoading && (
+          <div className="rounded-2xl border border-amber-200/60 bg-amber-50/60 p-4 flex items-center gap-3">
+            <span className="text-xl">✨</span>
+            <p className="text-sm font-medium text-amber-900 italic">"{motivation}"</p>
+          </div>
+        )}
 
         <div className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
           <div className="flex justify-between text-sm">

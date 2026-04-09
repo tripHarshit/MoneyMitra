@@ -167,6 +167,28 @@ export const fetchGeminiResponse = async (userMessage, userContext, conversation
 };
 
 /**
+ * Shuffle quiz options using Fisher-Yates and update correctIndex to match.
+ */
+const shuffleQuizOptions = (quiz) => {
+  if (!quiz || !Array.isArray(quiz.options) || quiz.options.length === 0) return quiz;
+
+  const correctAnswer = quiz.options[quiz.correctIndex ?? 0];
+  const shuffled = [...quiz.options];
+
+  // Fisher-Yates shuffle
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return {
+    ...quiz,
+    options: shuffled,
+    correctIndex: shuffled.indexOf(correctAnswer),
+  };
+};
+
+/**
  * Request a structured lesson and quiz from Gemini for the Learning Hub
  */
 const getFallbackLesson = (userContext, currentLevel) => {
@@ -211,7 +233,8 @@ For **${goalText}**, focus on regular contributions and staying invested through
     }
   ];
 
-  return lessonBank[(Math.max(1, currentLevel) - 1) % lessonBank.length];
+  const lesson = lessonBank[(Math.max(1, currentLevel) - 1) % lessonBank.length];
+  return { ...lesson, quiz: shuffleQuizOptions(lesson.quiz) };
 };
 
 export const generateLesson = async (userContext, currentLevel) => {
@@ -275,15 +298,17 @@ Do not include any text outside the JSON object. Do not wrap in markdown \`\`\`j
     
     const quizData = lowerKeys.quiz || {};
     // Ensure all structure exists to prevent crashes
+    const rawQuiz = {
+      question: quizData.question || "Did you understand the key concepts?",
+      options: (quizData.options && Array.isArray(quizData.options) && quizData.options.length > 0) ? quizData.options : ["Yes, let's proceed to the next lesson", "I need to review"],
+      correctIndex: quizData.correctIndex !== undefined ? parseInt(quizData.correctIndex, 10) : 0,
+      explanation: quizData.explanation || "Great effort! Keeping up with these micro-lessons will help you succeed."
+    };
+
     return {
       title: lowerKeys.title || "Financial Lesson",
       content: lowerKeys.content || "Ready to learn something new today?",
-      quiz: {
-        question: quizData.question || "Did you understand the key concepts?",
-        options: (quizData.options && Array.isArray(quizData.options) && quizData.options.length > 0) ? quizData.options : ["Yes, let's proceed to the next lesson", "I need to review"],
-        correctIndex: quizData.correctIndex !== undefined ? parseInt(quizData.correctIndex, 10) : 0,
-        explanation: quizData.explanation || "Great effort! Keeping up with these micro-lessons will help you succeed."
-      }
+      quiz: shuffleQuizOptions(rawQuiz)
     };
   } catch (error) {
     console.error('Error generating lesson. Raw error:', error);
