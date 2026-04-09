@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, Edit3, LogOut, ShieldCheck, Check, X } from 'lucide-react';
 
-const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
+const ProfileDropdown = ({ userPreferences, onUpdatePreferences, trigger }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -98,31 +98,41 @@ const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'MoneyMitra User';
   const initials = getInitials();
 
+  const dropdownClass = trigger
+    ? 'absolute left-0 bottom-full z-60 mb-2 w-80 overflow-hidden rounded-2xl border border-[#d4e8dc] bg-white shadow-modal scale-in'
+    : 'absolute right-0 top-full z-60 mt-2 w-80 overflow-hidden rounded-2xl border border-[#d4e8dc] bg-white shadow-modal scale-in';
+
   return (
     <div className="relative" ref={containerRef}>
-      {/* Trigger button */}
-      <button
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="Open profile menu"
-        aria-expanded={isOpen}
-        className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 transition ${
-          isOpen
-            ? 'border-emerald-300 bg-emerald-50'
-            : 'border-[#d4e8dc] bg-white hover:bg-[#e8f5ed]'
-        }`}
-      >
-        <div className="gradient-emerald flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white">
-          {initials}
+      {/* Trigger */}
+      {trigger ? (
+        <div onClick={() => setIsOpen((prev) => !prev)} role="button" aria-label="Open profile menu" aria-expanded={isOpen}>
+          {trigger}
         </div>
-        <ChevronDown
-          className={`h-3.5 w-3.5 text-[#3d5246] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
+      ) : (
+        <button
+          onClick={() => setIsOpen((prev) => !prev)}
+          aria-label="Open profile menu"
+          aria-expanded={isOpen}
+          className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 transition ${
+            isOpen
+              ? 'border-emerald-300 bg-emerald-50'
+              : 'border-[#d4e8dc] bg-white hover:bg-[#e8f5ed]'
+          }`}
+        >
+          <div className="gradient-emerald flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white">
+            {initials}
+          </div>
+          <ChevronDown
+            className={`h-3.5 w-3.5 text-[#3d5246] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+      )}
 
       {/* Dropdown panel */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full z-60 mt-2 w-80 overflow-hidden rounded-2xl border border-[#d4e8dc] bg-white shadow-modal scale-in"
+          className={dropdownClass}
           style={{ maxHeight: 'calc(100vh - 80px)', overflowY: 'auto' }}
         >
           {/* Header */}

@@ -18,6 +18,7 @@ import WelcomePage from './WelcomePage'
 import ChatInterface from './ChatInterface'
 import NewChatModal from './components/NewChatModal'
 import { getUserProfile, saveUserPreferences } from './services/userService'
+import ProfileDropdown from './components/ProfileDropdown'
 import { createChat, subscribeToChats, deleteChat } from './services/chatService'
 import { subscribeToMonthlyExpenses } from './services/expenseService'
 import { subscribeToGoals } from './services/goalService'
@@ -349,6 +350,51 @@ function AppChat() {
   );
 }
 
+function AppRecentChats() {
+  const { visibleChats, onSelectChat, openNewChat } = useOutletContext();
+
+  return (
+    <div className="h-full overflow-y-auto bg-[#f0faf4] px-5 pb-24 pt-6 md:px-8 md:pb-8">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="font-headline text-2xl font-extrabold text-emerald-900">Recent Chats</h1>
+            <p className="text-sm text-[#6b7e73]">Pick any conversation to open it in the chat panel.</p>
+          </div>
+          <button
+            onClick={openNewChat}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl gradient-emerald px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/20 transition hover:brightness-110"
+          >
+            <Plus className="h-4 w-4" />
+            New Chat
+          </button>
+        </div>
+
+        {visibleChats.length === 0 ? (
+          <div className="rounded-2xl border border-[#d4e8dc] bg-white p-8 text-center panel-shadow">
+            <MessageSquare className="mx-auto mb-3 h-8 w-8 text-emerald-300" />
+            <p className="text-base font-semibold text-[#0e1c16]">No conversations yet</p>
+            <p className="mt-1 text-sm text-[#6b7e73]">Start a new chat and your recent chats will appear here.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {visibleChats.map((chat) => (
+              <button
+                key={chat.id}
+                onClick={() => onSelectChat(chat.id)}
+                className="w-full rounded-2xl border border-[#d4e8dc] bg-white px-4 py-3 text-left panel-shadow transition hover:border-emerald-300 hover:bg-emerald-50/40"
+              >
+                <p className="truncate text-sm font-bold text-[#0e1c16]">{chat.title || 'Financial Chat'}</p>
+                <p className="mt-1 truncate text-xs text-[#6b7e73]">{chat.lastMessage || 'No messages yet'}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Protected layout ──────────────────────────────────────────────────────────
 function ProtectedAppLayout() {
   const { user } = useAuth();
@@ -514,6 +560,8 @@ function ProtectedAppLayout() {
     activeChat, activeChatId, monthlySpend, activeGoalsCount,
     onUpdatePreferences: handlePreferencesUpdate,
     openNewChat,
+    onSelectChat: handleSelectChat,
+    visibleChats,
     setActiveChatId,
     userLevel, userPreferences,
   };
@@ -575,75 +623,41 @@ function ProtectedAppLayout() {
 
         {/* Navigation */}
         <div className="px-4">
-          {/* Home link */}
           <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-400/50">Navigate</p>
           <SidebarNavLink to="/app" label="Home" icon={Home} color="text-emerald-300" onClick={closeSidebarOnMobile} end />
-          <SidebarNavLink to="/app/chat" label="Chat" icon={MessageSquare} color="text-violet-300" onClick={closeSidebarOnMobile} />
+          <SidebarNavLink to="/app/recent-chats" label="Recent Chats" icon={MessageSquare} color="text-violet-300" onClick={closeSidebarOnMobile} />
+        </div>
 
-          <div className="my-2 border-t border-white/8" />
+        <div className="mx-4 my-2 border-t border-white/8" />
 
+        {/* Tools */}
+        <div className="px-4 pb-2">
           <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-400/50">Tools</p>
           {TOOLS.map((tool) => (
             <SidebarNavLink key={tool.to} to={tool.to} label={tool.label} icon={tool.icon} color={tool.color} onClick={closeSidebarOnMobile} />
           ))}
         </div>
 
-        <div className="mx-4 my-2 border-t border-white/8" />
-
-        {/* Chat history */}
-        <div className="flex-1 min-h-0 px-4">
-          <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-400/50">Recent Chats</p>
-          <div className="sidebar-scroll h-full overflow-y-auto pb-2 pr-1">
-            {visibleChats.length === 0 ? (
-              <div className="rounded-xl border border-white/8 bg-white/4 px-3 py-5 text-center">
-                <MessageSquare className="mx-auto mb-2 h-4 w-4 text-emerald-500/50" />
-                <p className="text-xs font-medium text-emerald-300/50">No conversations yet</p>
-              </div>
-            ) : (
-              <div className="space-y-0.5">
-                {visibleChats.map((chat) => (
-                  <div
-                    key={chat.id}
-                    className={`group relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-xl px-3 py-2.5 transition ${
-                      activeChatId === chat.id ? 'bg-white/10' : 'hover:bg-white/6'
-                    }`}
-                    onClick={() => handleSelectChat(chat.id)}
-                  >
-                    <div className={`h-1.5 w-1.5 shrink-0 rounded-full ${activeChatId === chat.id ? 'bg-emerald-400' : 'bg-white/20'}`} />
-                    <div className="min-w-0 flex-1">
-                      <p className={`truncate text-xs font-semibold ${activeChatId === chat.id ? 'text-emerald-100' : 'text-emerald-200/70'}`}>
-                        {chat.title || 'Financial Chat'}
-                      </p>
-                      <p className="truncate text-[10px] text-emerald-300/40">{chat.lastMessage || 'No messages yet'}</p>
-                    </div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); requestDeleteChat(chat); }}
-                      className="ml-1 shrink-0 rounded-md p-1 text-transparent transition hover:bg-red-500/15 hover:text-red-400 group-hover:text-emerald-400/50"
-                      aria-label="Delete chat"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Profile strip */}
         <div className="border-t border-white/8 p-4">
-          <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full gradient-emerald text-xs font-bold text-white">
-              {userInitial}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-emerald-100">{userName}</p>
-              <p className="truncate text-[10px] text-emerald-400/50">{user?.email || 'Signed in'}</p>
-            </div>
-            <div className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-              Lv{userLevel}
-            </div>
-          </div>
+          <ProfileDropdown
+            userPreferences={userPreferences}
+            onUpdatePreferences={handlePreferencesUpdate}
+            trigger={
+              <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/5 px-3 py-2.5 cursor-pointer hover:bg-white/10 transition">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full gradient-emerald text-xs font-bold text-white">
+                  {userInitial}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-semibold text-emerald-100">{userName}</p>
+                  <p className="truncate text-[10px] text-emerald-400/50">{user?.email || 'Signed in'}</p>
+                </div>
+                <div className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                  Lv{userLevel}
+                </div>
+              </div>
+            }
+          />
         </div>
       </aside>
 
@@ -743,6 +757,7 @@ function App() {
           >
             <Route path="/app" element={<AppHome />} />
             <Route path="/app/chat" element={<AppChat />} />
+            <Route path="/app/recent-chats" element={<AppRecentChats />} />
             <Route path="/news"       element={<Suspense fallback={<RouteFallback />}><NewsPage /></Suspense>} />
             <Route path="/learn"      element={<Suspense fallback={<RouteFallback />}><LearningHub /></Suspense>} />
             <Route path="/expenses"   element={<Suspense fallback={<RouteFallback />}><ExpensePage /></Suspense>} />

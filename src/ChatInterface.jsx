@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import ProfileDropdown from './components/ProfileDropdown';
 import MessageBubble from './MessageBubble';
 import { fetchGeminiResponse } from './geminiService';
 import { subscribeToMessages, addMessage, updateChatTitle } from './services/chatService';
@@ -168,7 +167,6 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
             <Newspaper className="h-3.5 w-3.5" />
             News
           </button>
-          <ProfileDropdown userPreferences={userPreferences} onUpdatePreferences={onUpdatePreferences} />
         </div>
       </header>
 
