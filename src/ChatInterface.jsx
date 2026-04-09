@@ -5,7 +5,7 @@ import ProfileDropdown from './components/ProfileDropdown';
 import MessageBubble from './MessageBubble';
 import { fetchGeminiResponse } from './geminiService';
 import { subscribeToMessages, addMessage, updateChatTitle } from './services/chatService';
-import { Send, Sparkles, Wallet } from 'lucide-react';
+import { Send, Sparkles, Newspaper, ArrowLeft, Paperclip, Mic, Bot } from 'lucide-react';
 
 const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdatePreferences }) => {
   const [messages, setMessages] = useState([]);
@@ -13,27 +13,24 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
   const [isTyping, setIsTyping] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
   const messagesEndRef = useRef(null);
-  
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Subscribe to messages for this chat
   useEffect(() => {
     if (!user?.uid || !chatId) return;
 
-    // Clear messages when switching chats to prevent context mixing
     setMessages([]);
     setIsLoadingMessages(true);
-    
+
     const unsubscribe = subscribeToMessages(user.uid, chatId, (updatedMessages) => {
-      // Convert Firestore messages to local format
-      const formattedMessages = updatedMessages.map(msg => ({
+      const formattedMessages = updatedMessages.map((msg) => ({
         id: msg.id,
         text: msg.text,
         sender: msg.role === 'user' ? 'user' : 'bot',
-        timestamp: msg.timestamp?.toDate?.() || new Date()
+        timestamp: msg.timestamp?.toDate?.() || new Date(),
       }));
-      
+
       setMessages(formattedMessages);
       setIsLoadingMessages(false);
     });
@@ -47,30 +44,30 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isTyping]);
 
-  // Get user profile display text
   const getProfileText = () => {
     const occupation = userDetails?.occupation || '';
-    const goal = userDetails?.primaryGoal === 'save' ? 'Save Money' :
-                 userDetails?.primaryGoal === 'debt' ? 'Manage Debt' :
-                 userDetails?.primaryGoal === 'Save Money' ? 'Save Money' :
-                 userDetails?.primaryGoal === 'Manage Debt' ? 'Manage Debt' :
-                 userDetails?.primaryGoal === 'Learn Basics' ? 'Learn Basics' :
-                 userDetails?.primaryGoal || '';
+    const goal =
+      userDetails?.primaryGoal === 'save'
+        ? 'Save Money'
+        : userDetails?.primaryGoal === 'debt'
+          ? 'Manage Debt'
+          : userDetails?.primaryGoal === 'Save Money'
+            ? 'Save Money'
+            : userDetails?.primaryGoal === 'Manage Debt'
+              ? 'Manage Debt'
+              : userDetails?.primaryGoal === 'Learn Basics'
+                ? 'Learn Basics'
+                : userDetails?.primaryGoal || '';
     return `${occupation}${goal ? ` • ${goal}` : ''}`;
   };
 
-  // Generate context-aware suggested questions
   const getSuggestedQuestions = () => {
-    const { occupation, ageGroup, primaryGoal } = userDetails || {};
-    
-    const suggestions = [
-      'Create a budget for me',
-      'Analyze my daily habit cost'
-    ];
-    
-    // Based on occupation
+    const { occupation, primaryGoal } = userDetails || {};
+
+    const suggestions = ['Create a budget for me', 'Analyze my daily habit cost'];
+
     if (occupation === 'Student') {
       suggestions.push(
         'How do I save pocket money effectively?',
@@ -109,7 +106,6 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
       );
     }
 
-    // Add goal-specific suggestions
     if (primaryGoal === 'save' || primaryGoal === 'Save Money') {
       suggestions.push('What are the best savings strategies for beginners?');
     } else if (primaryGoal === 'debt' || primaryGoal === 'Manage Debt') {
@@ -118,71 +114,60 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
       suggestions.push('What are the financial basics I should know?');
     }
 
-    return suggestions.slice(0, 5); // Return only first 5 suggestions
+    return suggestions.slice(0, 5);
   };
 
-  // Build conversation history for context-aware responses
   const getConversationHistory = () => {
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       role: msg.sender === 'user' ? 'user' : 'assistant',
-      text: msg.text
+      text: msg.text,
     }));
   };
 
   const handleSendMessage = async (message, hiddenPrompt = null) => {
     if (!message.trim() || !user?.uid || !chatId) return;
 
-    // Create optimistic user message for immediate display
     const tempUserMessage = {
       id: 'temp_' + Date.now(),
       text: message,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, tempUserMessage]);
+    setMessages((prev) => [...prev, tempUserMessage]);
     setInputValue('');
-    
-    // Show typing indicator immediately
     setIsTyping(true);
-    
+
     try {
-      // Save user message to Firestore
       await addMessage(user.uid, chatId, 'user', message);
-      
-      // Get conversation history for context (exclude the temp message)
+
       const conversationHistory = getConversationHistory();
-      
-      // Call Gemini API with conversation history. Use hiddenPrompt if provided.
       const promptToSend = hiddenPrompt || message;
       const botResponseText = await fetchGeminiResponse(promptToSend, userDetails, conversationHistory);
-      
-      // Save bot response to Firestore
+
       await addMessage(user.uid, chatId, 'assistant', botResponseText);
-      
-      // Update chat title if this is the first message
+
       if (messages.length === 0) {
         const title = message.length > 30 ? message.substring(0, 30) + '...' : message;
         await updateChatTitle(user.uid, chatId, title);
       }
-      
     } catch (error) {
       console.error('Error:', error);
-      // Display the actual error message from the API
       const errorMessage = error.message || "I apologize, but I'm having trouble processing your request right now. Please try again.";
-      
-      // Save error response to Firestore
+
       try {
         await addMessage(user.uid, chatId, 'assistant', errorMessage);
       } catch (saveError) {
         console.error('Error saving error message:', saveError);
-        // Show error in UI directly if save fails
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          text: errorMessage,
-          sender: 'bot',
-          timestamp: new Date()
-        }]);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now() + 1,
+            text: errorMessage,
+            sender: 'bot',
+            timestamp: new Date(),
+          },
+        ]);
       }
     } finally {
       setIsTyping(false);
@@ -205,217 +190,189 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
     handleSendMessage(question);
   };
 
-  // Loading state for messages
   if (isLoadingMessages) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#0F1115]">
-        <div className="text-center space-y-4 w-72">
-          {/* Shimmer Loading */}
+      <div className="flex h-full items-center justify-center bg-[#f2fcf8]">
+        <div className="w-72 space-y-4">
           <div className="h-12 rounded-2xl shimmer"></div>
           <div className="h-24 rounded-2xl shimmer"></div>
-          <div className="h-16 rounded-2xl shimmer w-4/5"></div>
-          <p className="text-gray-500 text-sm font-medium mt-4">Loading chat...</p>
+          <div className="h-12 w-3/4 rounded-2xl shimmer"></div>
+          <p className="text-center text-sm font-semibold text-[#3d4a42]">Loading chat...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#0F1115]">
-      {/* Header */}
-      <header className="glass z-10 px-5 py-4 border-b border-white/5">
-        <div className="flex items-center justify-between">
-          {/* Chat Title */}
+    <div className="flex h-full flex-col bg-[#f2fcf8] text-[#141d1b]">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-emerald-100 bg-white/85 px-4 py-4 backdrop-blur-xl md:px-8">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/')}
+            className="rounded-full p-2 text-[#3d4a42] transition hover:bg-[#ecf6f2]"
+            aria-label="Back to dashboard"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Wallet className="w-5 h-5 text-white" strokeWidth={1.5} />
+            <div className="rounded-lg bg-emerald-50 p-2 text-emerald-700">
+              <Sparkles className="h-4 w-4" />
             </div>
             <div>
-              <h1 className="text-base font-semibold text-white truncate max-w-xs">
-                {chatData?.title || 'Financial Chat'}
-              </h1>
-              <p className="text-xs text-gray-500">{getProfileText()}</p>
+              <h2 className="font-headline text-lg font-bold text-emerald-900">
+                {chatData?.title || 'Portfolio Optimization'}
+              </h2>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-700/60">{getProfileText()}</p>
             </div>
           </div>
+        </div>
 
-          {/* Right - News & Profile Dropdown */}
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => navigate('/news')}
-              className="px-4 py-2 bg-indigo-500/10 text-indigo-400 text-sm font-medium rounded-xl border border-indigo-500/20 hover:bg-indigo-500/20 transition-all flex items-center gap-2"
-            >
-              Latest News
-            </button>
-            <ProfileDropdown 
-              userPreferences={userPreferences} 
-              onUpdatePreferences={onUpdatePreferences}
-            />
-          </div>
+        <div className="flex items-center gap-2 md:gap-3">
+          <button
+            onClick={() => navigate('/news')}
+            className="hidden items-center gap-2 rounded-full border border-emerald-100 bg-[#ecf6f2] px-3 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-white sm:flex"
+          >
+            <Newspaper className="h-4 w-4" />
+            Latest News
+          </button>
+          <ProfileDropdown userPreferences={userPreferences} onUpdatePreferences={onUpdatePreferences} />
         </div>
       </header>
 
-      {/* Message Area */}
-      <main className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto px-4 py-6">
-          <div className="max-w-3xl mx-auto space-y-4">
-            
-            {/* Welcome Message */}
-            {messages.length === 0 && (
-              <div className="glass rounded-3xl p-6 float-shadow">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <Sparkles className="w-5 h-5 text-white" strokeWidth={1.5} />
-                  </div>
-                  <span className="font-medium text-gray-200">MoneyMitra Assistant</span>
-                </div>
-                <p className="text-gray-300 leading-relaxed">
-                  Hello! I'm your personalized financial companion. Based on your profile as a <span className="text-indigo-400 font-medium">{userDetails?.occupation}</span> in the <span className="text-indigo-400 font-medium">{userDetails?.ageGroup}</span> age group, I'm here to help you {userDetails?.primaryGoal === 'save' ? 'save money' : userDetails?.primaryGoal === 'debt' ? 'manage debt' : 'learn financial basics'}. 
-                </p>
-                <p className="text-gray-400 mt-3 text-sm">
-                  Feel free to ask me anything about personal finance, or choose from the suggested questions below.
-                </p>
-              </div>
-            )}
-
-            {/* Chat Messages */}
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                text={message.text}
-                sender={message.sender}
-                timestamp={message.timestamp}
-              />
-            ))}
-
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className="flex justify-start mb-4 message-enter">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 mr-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                      <Sparkles className="w-5 h-5 text-white" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="mb-1 ml-1">
-                      <span className="text-xs font-medium text-gray-500">MoneyMitra</span>
-                    </div>
-                    <div className="glass px-5 py-4 rounded-2xl rounded-tl-md">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-      </main>
-
-      {/* Input Area */}
-      <footer className="glass border-t border-white/5 p-4">
-        <div className="max-w-3xl mx-auto">
-          
-          {/* Suggested Questions - Only show when chat is empty */}
+      <main className="message-area-bg flex-1 overflow-y-auto px-4 py-6 md:px-8">
+        <div className="mx-auto max-w-4xl space-y-4">
           {messages.length === 0 && (
-            <div className="mb-4">
-              <p className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" strokeWidth={1.5} />
-                Suggested questions for you
+            <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="gradient-emerald rounded-xl p-2 text-white">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <p className="font-semibold text-emerald-900">MoneyMitra AI</p>
+              </div>
+              <p className="leading-relaxed text-[#3d4a42]">
+                Based on your profile as a <span className="font-semibold text-emerald-700">{userDetails?.occupation}</span>,
+                I can help you with practical, personalized financial actions.
               </p>
-              <div className="flex flex-wrap gap-2">
-                {getSuggestedQuestions().map((question, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSuggestedQuestion(question)}
-                    className="text-sm bg-indigo-500/10 text-indigo-400 px-4 py-2 rounded-full border border-indigo-500/20 hover:bg-indigo-500/20 hover:border-indigo-500/30 transition-all duration-300 text-left"
-                  >
-                    {question}
-                  </button>
-                ))}
+              <p className="mt-2 text-sm text-[#6d7a72]">Ask a question or start with one of the guided prompts below.</p>
+            </div>
+          )}
+
+          {messages.map((message) => (
+            <MessageBubble
+              key={message.id}
+              text={message.text}
+              sender={message.sender}
+              timestamp={message.timestamp}
+            />
+          ))}
+
+          {isTyping && (
+            <div className="flex items-center gap-3 rounded-full border border-emerald-100 bg-white/80 px-4 py-3 w-fit">
+              <div className="gradient-emerald rounded-lg p-1.5 text-white">
+                <Sparkles className="h-3.5 w-3.5" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-500"></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-500 [animation-delay:0.2s]"></div>
+                <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-500 [animation-delay:0.4s]"></div>
               </div>
             </div>
           )}
 
-          {/* Quick Actions */}
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-             <button
-                type="button"
-                onClick={() => handleSendMessage(
-                  "Generate a budget table",
-                  "Create a highly structured and detailed personalized monthly budget table for me based on my profile, following the 50/30/20 rule. Output it as a clean Markdown table."
-                )}
-                disabled={isTyping}
-                className="flex items-center gap-1.5 text-xs font-medium bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Wallet className="w-3.5 h-3.5" />
-                <span>Generate Budget Table</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSendMessage(
-                  "Calculate my Latte Factor",
-                  "I want to calculate my Latte Factor. Please ask me to input a small daily habit I spend money on (like coffee, snacks). Wait for my answer. After I provide it, show me a table of how much it costs me in 10, 20, and 30 years considering an opportunity cost of 7% annual return."
-                )}
-                disabled={isTyping}
-                className="flex items-center gap-1.5 text-xs font-medium bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full border border-amber-500/20 hover:bg-amber-500/20 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="text-sm leading-none">☕</span>
-                <span>Latte Factor Calculator</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setInputValue("I want to mirror a purchase: I am thinking of buying [Item] for ₹[Amount].")}
-                disabled={isTyping}
-                className="flex items-center gap-1.5 text-xs font-medium bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/20 hover:bg-blue-500/20 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="text-sm leading-none">🔍</span>
-                <span>Mirror a Purchase</span>
-              </button>
+          <div ref={messagesEndRef} />
+        </div>
+      </main>
+
+      <footer className="border-t border-emerald-100 bg-white px-4 py-4 md:px-8">
+        <div className="mx-auto max-w-4xl">
+          {messages.length === 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {getSuggestedQuestions().map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSuggestedQuestion(question)}
+                  className="rounded-full border border-emerald-100 bg-white px-4 py-2 text-sm font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="mb-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+            <button
+              type="button"
+              onClick={() =>
+                handleSendMessage(
+                  'Generate a budget table',
+                  'Create a highly structured and detailed personalized monthly budget table for me based on my profile, following the 50/30/20 rule. Output it as a clean Markdown table.'
+                )
+              }
+              disabled={isTyping}
+              className="whitespace-nowrap rounded-full border border-emerald-100 bg-white px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Generate Budget Table
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleSendMessage(
+                  'Calculate my Latte Factor',
+                  'I want to calculate my Latte Factor. Please ask me to input a small daily habit I spend money on (like coffee, snacks). Wait for my answer. After I provide it, show me a table of how much it costs me in 10, 20, and 30 years considering an opportunity cost of 7% annual return.'
+                )
+              }
+              disabled={isTyping}
+              className="whitespace-nowrap rounded-full border border-amber-200 bg-[#ffdcc3]/45 px-4 py-2 text-xs font-semibold text-[#6e3900] transition hover:bg-[#ffdcc3]/70 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Latte Factor Calculator
+            </button>
+            <button
+              type="button"
+              onClick={() => setInputValue('I want to mirror a purchase: I am thinking of buying [Item] for ₹[Amount].')}
+              disabled={isTyping}
+              className="whitespace-nowrap rounded-full border border-emerald-100 bg-[#ecf6f2] px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Mirror a Purchase
+            </button>
           </div>
 
-          {/* Input Form */}
-          <form onSubmit={handleSubmit} className="flex items-end space-x-3 mb-3">
-            <div className="flex-1 relative">
+          <form onSubmit={handleSubmit} className="flex items-center gap-3">
+            <div className="relative flex-1">
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask about savings, budget, or debt..."
-                className="w-full px-5 py-4 bg-[#1A1D23] border border-white/5 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 text-gray-200 placeholder-gray-500 glow-indigo-focus"
+                placeholder="Ask MoneyMitra about your wealth..."
+                className="w-full rounded-2xl border border-emerald-100 bg-[#e0eae6] px-5 py-4 pr-24 text-sm text-[#141d1b] placeholder:text-[#6d7a72] focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 disabled={isTyping}
               />
-              <style>{`
-                .glow-indigo-focus:focus {
-                  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
-                }
-              `}</style>
+              <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1">
+                <button type="button" className="rounded-lg p-1 text-emerald-700 hover:bg-emerald-100" aria-label="Attach file">
+                  <Paperclip className="h-4 w-4" />
+                </button>
+                <button type="button" className="rounded-lg p-1 text-emerald-700 hover:bg-emerald-100" aria-label="Voice input">
+                  <Mic className="h-4 w-4" />
+                </button>
+              </div>
             </div>
             <button
               type="submit"
               disabled={!inputValue.trim() || isTyping}
-              className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
+              className={`h-14 w-14 rounded-2xl text-white transition ${
                 inputValue.trim() && !isTyping
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:scale-95'
-                  : 'bg-[#22262E] text-gray-500 cursor-not-allowed'
+                  ? 'gradient-emerald shadow-lg shadow-emerald-900/20 hover:brightness-105'
+                  : 'bg-[#bccac0] cursor-not-allowed'
               }`}
+              aria-label="Send message"
             >
-              <Send className="w-5 h-5" strokeWidth={1.5} />
+              <Send className="mx-auto h-5 w-5" />
             </button>
           </form>
 
-          {/* Disclaimer */}
-          <div className="text-center">
-            <p className="text-xs text-gray-600 leading-relaxed">
-              MoneyMitra is an educational tool. We do not provide professional financial or legal advice.
-            </p>
-          </div>
+          <p className="mt-2 text-center text-[10px] font-medium text-[#6d7a72]">
+            MoneyMitra AI can make mistakes. Verify critical financial data.
+          </p>
         </div>
       </footer>
     </div>

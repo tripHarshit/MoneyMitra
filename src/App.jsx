@@ -7,12 +7,10 @@ import WelcomePage from './WelcomePage'
 import NewsPage from './pages/NewsPage'
 import LearningHub from './pages/LearningHub'
 import ChatInterface from './ChatInterface'
-import ChatList from './components/ChatList'
-import ProfileDropdown from './components/ProfileDropdown'
 import NewChatModal from './components/NewChatModal'
-import { getUserProfile, saveUserPreferences, hasCompletedSetup } from './services/userService'
+import { getUserProfile, saveUserPreferences } from './services/userService'
 import { createChat, subscribeToChats, deleteChat } from './services/chatService'
-import { Plus, Menu, X, MessageSquare, Trash2, TrendingUp, Wallet, GraduationCap, BookOpen, Lock } from 'lucide-react'
+import { Plus, Menu, X, MessageSquare, Trash2, TrendingUp, Wallet, GraduationCap, BookOpen, Sparkles } from 'lucide-react'
 import './App.css'
 
 function MainApp() {
@@ -73,7 +71,7 @@ function MainApp() {
     });
 
     return () => unsubscribe();
-  }, [user?.uid, showSetup]);
+  }, [user?.uid, showSetup, activeChatId]);
 
   // Handle initial setup completion
   const handleSetupComplete = async (formData) => {
@@ -163,15 +161,14 @@ function MainApp() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0F1115]">
+      <div className="flex items-center justify-center min-h-screen bg-[#f2fcf8]">
         <div className="text-center">
-          {/* Shimmer Loading Cards */}
           <div className="space-y-4 w-64">
             <div className="h-16 rounded-2xl shimmer"></div>
             <div className="h-12 rounded-2xl shimmer"></div>
             <div className="h-12 rounded-2xl shimmer w-3/4 mx-auto"></div>
           </div>
-          <p className="text-gray-400 font-medium mt-6 text-sm">Loading your profile...</p>
+          <p className="text-[#3d4a42] font-semibold mt-6 text-sm">Loading your profile...</p>
         </div>
       </div>
     );
@@ -193,192 +190,230 @@ function MainApp() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0F1115]">
-      {/* Sidebar - Chat List */}
-      <div className={`${isSidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden bg-[#1A1D23] border-r border-white/5 flex-shrink-0`}>
-        <div className="h-full flex flex-col">
-          {/* Sidebar Header */}
-          <div className="px-5 py-5 border-b border-white/5">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                  <Wallet className="w-5 h-5 text-white" strokeWidth={1.5} />
-                </div>
-                <h1 className="text-lg font-semibold text-white tracking-tight">MoneyMitra</h1>
+    <div className="h-screen bg-[#f2fcf8] text-[#141d1b]">
+      {isSidebarOpen && (
+        <button
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/35 backdrop-blur-sm md:hidden"
+          aria-label="Close sidebar backdrop"
+        />
+      )}
+
+      <aside
+        className={`fixed left-0 top-0 z-50 h-screen w-[280px] border-r border-emerald-100 bg-emerald-50 p-6 transition-transform duration-300 md:translate-x-0 ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="mb-8 px-2">
+            <div className="mb-4 flex items-center justify-between md:hidden">
+              <h2 className="text-base font-bold text-emerald-900">Menu</h2>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="rounded-lg p-2 text-emerald-700 hover:bg-emerald-100"
+                aria-label="Close sidebar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <h1 className="font-headline text-2xl font-bold tracking-tight text-emerald-900">MoneyMitra AI</h1>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700/70">Wealth Curation</p>
+          </div>
+
+          <button
+            onClick={() => setShowNewChatModal(true)}
+            className="gradient-emerald mb-7 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-900/15 transition hover:brightness-105"
+          >
+            <Plus className="h-4 w-4" />
+            New Chat
+          </button>
+
+          <div className="mb-6 rounded-2xl border border-amber-200/40 bg-white p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8d4b00]">Market Pulse</span>
+              <TrendingUp className="h-4 w-4 text-emerald-600" />
+            </div>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-[11px] font-medium text-[#3d4a42]">NIFTY 50</p>
+                <p className="font-headline text-xl font-extrabold text-emerald-900">22,419.50</p>
+              </div>
+              <p className="text-xs font-bold text-emerald-700">+0.85%</p>
+            </div>
+          </div>
+
+          <div className="mb-6 rounded-2xl bg-[#ecf6f2] p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="rounded-lg bg-amber-100 p-2">
+                <GraduationCap className="h-4 w-4 text-[#8d4b00]" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-[#141d1b]">Learning Progress</p>
+                <p className="text-[10px] text-[#3d4a42]">Level {userLevel}: Strategic Planner</p>
               </div>
             </div>
+            <div className="h-2 overflow-hidden rounded-full bg-emerald-100">
+              <div className="h-full w-[65%] rounded-full bg-emerald-700"></div>
+            </div>
             <button
-              onClick={() => setShowNewChatModal(true)}
-              className="w-full py-3 px-4 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-2xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 border border-indigo-500/20 hover:-translate-y-0.5"
+              onClick={() => navigate('/learn')}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-white py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
             >
-              <Plus className="w-4 h-4" strokeWidth={2} />
-              New Chat
+              <BookOpen className="h-3.5 w-3.5" />
+              Continue Learning
             </button>
           </div>
 
-          {/* Financial Pulse Cards */}
-          <div className="px-4 py-4 border-b border-white/5 space-y-3">
-            <div className="glass rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-gray-400 font-medium">Market Pulse</span>
-                <TrendingUp className="w-4 h-4 text-emerald-400" strokeWidth={1.5} />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-semibold text-white font-mono">NIFTY 50</span>
-                <span className="text-xs text-emerald-400 font-mono">+1.24%</span>
-              </div>
-              {/* Mini Chart SVG */}
-              <svg className="w-full h-8 mt-2" viewBox="0 0 100 20">
-                <path 
-                  d="M0,15 Q10,10 20,12 T40,8 T60,10 T80,5 T100,7" 
-                  fill="none" 
-                  stroke="url(#gradient)" 
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#6366F1" />
-                    <stop offset="100%" stopColor="#10B981" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-          </div>
-
-          {/* Learning Paths */}
-          <div className="px-4 py-4 border-b border-white/5 space-y-2">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-400 font-medium">Micro-Courses</span>
-              <GraduationCap className="w-4 h-4 text-indigo-400" strokeWidth={1.5} />
-            </div>
-            
-            <button
-               onClick={() => navigate('/learn')}
-               className="w-full text-left px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-xl transition-all border border-indigo-500/20 font-medium text-sm flex items-center justify-between"
-            >
-              <span>Current Level: {userLevel}</span>
-              <BookOpen className="w-4 h-4 text-indigo-400" />
-            </button>
-            <div className="flex flex-col gap-1.5 mt-2 px-1">
-               <div className="text-xs text-gray-500/70 font-medium flex items-center justify-between">
-                 <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Level {userLevel + 1}</span>
-                 <span className="text-[10px] uppercase tracking-wider">Locked</span>
-               </div>
-               <div className="text-xs text-gray-500/40 font-medium flex items-center justify-between">
-                 <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Level {userLevel + 2}</span>
-                 <span className="text-[10px] uppercase tracking-wider">Locked</span>
-               </div>
-            </div>
-          </div>
-
-          {/* Chat List */}
-          <div className="flex-1 overflow-y-auto">
-            {chats.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full px-6 text-center py-8">
-                <div className="w-16 h-16 bg-[#22262E] rounded-2xl flex items-center justify-center mb-4">
-                  <MessageSquare className="w-7 h-7 text-gray-500" strokeWidth={1.5} />
+          <div className="mb-2 px-1">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#3d4a42]/70">Recent Chats</p>
+            <div className="max-h-[calc(100vh-450px)] space-y-1.5 overflow-y-auto pr-1">
+              {chats.length === 0 && (
+                <div className="rounded-xl border border-emerald-100 bg-white px-3 py-4 text-center">
+                  <MessageSquare className="mx-auto mb-2 h-4 w-4 text-emerald-500" />
+                  <p className="text-xs font-medium text-[#3d4a42]">No conversations yet</p>
                 </div>
-                <h3 className="text-gray-300 font-semibold mb-2">No chats yet</h3>
-                <p className="text-gray-500 text-sm">Start a new chat to begin</p>
-              </div>
-            ) : (
-              <div className="py-2">
-                {chats.map((chat) => (
-                  <div
-                    key={chat.id}
-                    className={`group relative mx-3 mb-1 rounded-xl transition-all duration-300 ${
-                      activeChatId === chat.id 
-                        ? 'bg-indigo-500/10 border border-indigo-500/20' 
-                        : 'hover:bg-white/5 border border-transparent'
-                    }`}
+              )}
+
+              {chats.map((chat) => (
+                <div
+                  key={chat.id}
+                  className={`group relative overflow-hidden rounded-xl border px-3 py-3 transition ${
+                    activeChatId === chat.id
+                      ? 'border-emerald-200 bg-white shadow-sm'
+                      : 'border-transparent bg-transparent hover:border-emerald-100 hover:bg-white/70'
+                  }`}
+                >
+                  <button
+                    onClick={() => handleSelectChat(chat.id)}
+                    className="w-full text-left"
                   >
-                    <button
-                      onClick={() => handleSelectChat(chat.id)}
-                      className="w-full px-4 py-3 text-left"
-                    >
-                      <div className="flex items-start justify-between mb-1">
-                        <h3 className={`font-medium truncate flex-1 text-sm ${
-                          activeChatId === chat.id ? 'text-indigo-400' : 'text-gray-200'
-                        }`}>
-                          {chat.title || 'Financial Chat'}
-                        </h3>
-                        <span className="text-xs text-gray-500 ml-2 flex-shrink-0 font-mono">
-                          {chat.createdAt?.toDate?.()?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) || ''}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500 truncate mb-2">
-                        {chat.lastMessage || 'No messages yet'}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-indigo-400/80 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">
-                          {chat.profile?.goal || 'Financial'}
-                        </span>
-                      </div>
-                    </button>
-                    {/* Delete button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm('Delete this chat?')) {
-                          handleDeleteChat(chat.id);
-                        }
-                      }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300"
-                    >
-                      <Trash2 className="w-4 h-4" strokeWidth={1.5} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+                    <p className={`truncate text-sm font-semibold ${activeChatId === chat.id ? 'text-emerald-800' : 'text-[#3d4a42]'}`}>
+                      {chat.title || 'Financial Chat'}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-[#6d7a72]">{chat.lastMessage || 'No messages yet'}</p>
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Delete this chat?')) {
+                        handleDeleteChat(chat.id);
+                      }
+                    }}
+                    className="absolute right-2 top-2 rounded-lg p-1 text-[#6d7a72] opacity-0 transition hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                    aria-label="Delete chat"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-auto rounded-2xl bg-gradient-to-br from-emerald-900 to-emerald-700 p-4 text-white">
+            <p className="text-xs font-medium text-emerald-100/80">Exclusive Benefits</p>
+            <p className="mb-3 mt-1 text-sm font-bold">Upgrade to Premium</p>
+            <button className="w-full rounded-lg bg-white py-2 text-xs font-bold text-emerald-800 transition hover:brightness-95">
+              Get Started
+            </button>
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Toggle button for sidebar on mobile */}
+      <div className="relative h-screen md:ml-[280px]">
         <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-[#1A1D23] rounded-xl border border-white/5 shadow-lg transition-all duration-300 hover:bg-[#22262E]"
+          onClick={() => setIsSidebarOpen((prev) => !prev)}
+          className="fixed left-4 top-4 z-[60] rounded-xl border border-emerald-200 bg-white p-2 text-emerald-800 shadow md:hidden"
+          aria-label="Toggle sidebar"
         >
-          {isSidebarOpen ? (
-            <X className="w-5 h-5 text-gray-300" strokeWidth={1.5} />
-          ) : (
-            <Menu className="w-5 h-5 text-gray-300" strokeWidth={1.5} />
-          )}
+          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        {/* Chat Interface */}
         {activeChatId ? (
-          <ChatInterface 
-            userDetails={userDetails} 
+          <ChatInterface
+            userDetails={userDetails}
             chatId={activeChatId}
             chatData={activeChat}
             userPreferences={userPreferences}
             onUpdatePreferences={handlePreferencesUpdate}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-[#0F1115]">
-            <div className="text-center px-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/30">
-                <Wallet className="w-10 h-10 text-white" strokeWidth={1.5} />
+          <main className="h-full overflow-y-auto px-5 pb-24 pt-6 md:px-8">
+            <header className="mb-8 rounded-2xl border border-emerald-100 bg-white/80 px-6 py-4 backdrop-blur-xl panel-shadow">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="font-headline text-2xl font-extrabold tracking-tight text-emerald-900">Dashboard</h2>
+                  <p className="text-sm text-[#3d4a42]">Your personal wealth curator is ready.</p>
+                </div>
+                <div className="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 md:flex">
+                  <Sparkles className="h-4 w-4 text-emerald-700" />
+                  <span className="text-xs font-bold text-emerald-800">AI Insight Active</span>
+                </div>
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">Welcome to MoneyMitra</h2>
-              <p className="text-gray-400 mb-8 max-w-md">Start a new chat to get personalized financial advice powered by AI</p>
-              <button
-                onClick={() => setShowNewChatModal(true)}
-                className="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-xl shadow-indigo-500/30 hover:-translate-y-0.5"
-              >
-                Start New Chat
-              </button>
-            </div>
-          </div>
+            </header>
+
+            <section className="mx-auto max-w-5xl">
+              <div className="mb-8 rounded-3xl border border-emerald-100 bg-white p-8 text-center panel-shadow">
+                <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl gradient-emerald shadow-lg shadow-emerald-900/20">
+                  <Wallet className="h-10 w-10 text-white" />
+                </div>
+                <h3 className="font-headline text-4xl font-extrabold tracking-tight text-emerald-900">Good Morning</h3>
+                <p className="mx-auto mt-3 max-w-xl text-lg text-[#3d4a42]">Start a new conversation to get personalized plans for saving, investing, and long-term wealth growth.</p>
+
+                <button
+                  onClick={() => setShowNewChatModal(true)}
+                  className="gradient-emerald mt-7 inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-900/15 transition hover:brightness-105"
+                >
+                  <Plus className="h-4 w-4" />
+                  Start New Chat
+                </button>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <button
+                  onClick={() => setShowNewChatModal(true)}
+                  className="rounded-2xl border border-emerald-100 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <div className="mb-4 inline-flex rounded-xl bg-emerald-50 p-2 text-emerald-700">
+                    <Wallet className="h-5 w-5" />
+                  </div>
+                  <p className="font-headline text-lg font-bold text-emerald-900">Analyze Portfolio</p>
+                  <p className="mt-1 text-xs text-[#3d4a42]">Review your asset allocation and risk exposure.</p>
+                </button>
+
+                <button
+                  onClick={() => navigate('/news')}
+                  className="rounded-2xl border border-emerald-100 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <div className="mb-4 inline-flex rounded-xl bg-amber-50 p-2 text-amber-700">
+                    <TrendingUp className="h-5 w-5" />
+                  </div>
+                  <p className="font-headline text-lg font-bold text-emerald-900">Market Pulse</p>
+                  <p className="mt-1 text-xs text-[#3d4a42]">Track the latest macro and sector trends.</p>
+                </button>
+
+                <button
+                  onClick={() => navigate('/learn')}
+                  className="rounded-2xl border border-emerald-100 bg-white p-6 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <div className="mb-4 inline-flex rounded-xl bg-[#ffdcc3] p-2 text-[#8d4b00]">
+                    <GraduationCap className="h-5 w-5" />
+                  </div>
+                  <p className="font-headline text-lg font-bold text-emerald-900">Learning Progress</p>
+                  <p className="mt-1 text-xs text-[#3d4a42]">Level {userLevel} unlocked. Continue your path.</p>
+                </button>
+              </div>
+
+              <div className="mt-6 rounded-full border border-amber-200 bg-[#ffdcc3]/40 px-4 py-2 text-xs text-[#6e3900]">
+                <span className="mr-2 font-bold uppercase tracking-[0.16em]">AI Insight</span>
+                Markets are volatile today. Consider hedging your tech exposure.
+              </div>
+            </section>
+          </main>
         )}
       </div>
 
-      {/* New Chat Modal */}
       {showNewChatModal && (
         <NewChatModal
           onClose={() => setShowNewChatModal(false)}
@@ -395,10 +430,8 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          {/* Public Login Route */}
           <Route path="/login" element={<Login />} />
-          
-          {/* Protected App Routes */}
+
           <Route
             path="/"
             element={
@@ -409,8 +442,7 @@ function App() {
           />
           <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
           <Route path="/learn" element={<ProtectedRoute><LearningHub /></ProtectedRoute>} />
-          
-          {/* Fallback - Redirect to home */}
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>

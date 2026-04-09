@@ -23,33 +23,32 @@ const MessageBubble = ({ text, sender, timestamp }) => {
   const isUser = sender === 'user';
   const isMirrorMode = !isUser && typeof text === 'string' && text.includes('### Purchase Mirror Reality Check');
 
-  // Custom markdown styling components for dark theme
+  // Custom markdown styling components for learning-friendly chat output.
   const markdownComponents = {
-    h1: ({node, ...props}) => <h1 className="text-xl font-semibold mt-3 mb-2 text-gray-100" {...props} />,
-    h2: ({node, ...props}) => <h2 className="text-lg font-semibold mt-2 mb-2 text-gray-100" {...props} />,
-    h3: ({node, ...props}) => <h3 className="text-base font-semibold mt-2 mb-2 text-gray-100" {...props} />,
-    strong: ({node, ...props}) => <strong className="font-semibold text-indigo-300" {...props} />,
-    em: ({node, ...props}) => <em className="italic text-gray-300" {...props} />,
-    ul: ({node, ...props}) => <ul className="list-disc list-inside my-2 space-y-1" {...props} />,
-    ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2 space-y-1" {...props} />,
-    li: ({node, ...props}) => <li className="ml-2 text-gray-300" {...props} />,
-    p: ({node, ...props}) => <p className="my-2 text-gray-300" {...props} />,
+    h1: ({node, ...props}) => <h1 className="mt-3 mb-2 text-xl font-semibold text-[#141d1b]" {...props} />,
+    h2: ({node, ...props}) => <h2 className="mt-2 mb-2 text-lg font-semibold text-[#141d1b]" {...props} />,
+    h3: ({node, ...props}) => <h3 className="mt-2 mb-2 text-base font-semibold text-[#141d1b]" {...props} />,
+    strong: ({node, ...props}) => <strong className="font-semibold text-emerald-700" {...props} />,
+    em: ({node, ...props}) => <em className="italic text-[#3d4a42]" {...props} />,
+    ul: ({node, ...props}) => <ul className="my-2 list-inside list-disc space-y-1" {...props} />,
+    ol: ({node, ...props}) => <ol className="my-2 list-inside list-decimal space-y-1" {...props} />,
+    li: ({node, ...props}) => <li className="ml-2 text-[#3d4a42]" {...props} />,
+    p: ({node, ...props}) => <p className="my-2 text-[#3d4a42]" {...props} />,
     code: ({node, inline, ...props}) => 
       inline ? 
-        <code className="bg-[#22262E] px-2 py-1 rounded text-sm font-mono text-indigo-300" {...props} /> :
-        <code className="bg-[#22262E] p-3 rounded-xl block text-sm font-mono my-2 text-indigo-300" {...props} />,
+        <code className="rounded bg-[#ecf6f2] px-2 py-1 font-mono text-sm text-emerald-800" {...props} /> :
+        <code className="my-2 block rounded-xl bg-[#ecf6f2] p-3 font-mono text-sm text-emerald-800" {...props} />,
     td: ({node, ...props}) => <td className="px-4 py-3 align-top leading-relaxed" {...props} />,
     table: ({node, ...props}) => (
-      <div className="overflow-x-auto my-4 rounded-xl shadow-lg border border-gray-700/50 bg-[#1e2128]">
-        <table className="w-full text-left border-collapse text-sm text-gray-300" {...props} />
+      <div className="my-4 overflow-x-auto rounded-xl border border-emerald-100 bg-white shadow-sm">
+        <table className="w-full border-collapse text-left text-sm text-[#3d4a42]" {...props} />
       </div>
     ),
-    thead: ({node, ...props}) => <thead className="bg-[#2a2e37] text-gray-200 border-b border-gray-700/50" {...props} />,
-    tbody: ({node, ...props}) => <tbody className="divide-y divide-gray-700/30" {...props} />,
-    tr: ({node, ...props}) => <tr className="hover:bg-white/[0.02] transition-colors" {...props} />,
-    th: ({node, ...props}) => <th className="px-4 py-3 font-semibold whitespace-nowrap text-indigo-200" {...props} />,
+    thead: ({node, ...props}) => <thead className="border-b border-emerald-100 bg-[#ecf6f2] text-[#141d1b]" {...props} />,
+    tbody: ({node, ...props}) => <tbody className="divide-y divide-emerald-100/80" {...props} />,
+    tr: ({node, ...props}) => <tr className="transition-colors hover:bg-emerald-50/40" {...props} />,
+    th: ({node, ...props}) => <th className="whitespace-nowrap px-4 py-3 font-semibold text-emerald-900" {...props} />,
     blockquote: ({node, children, ...props}) => {
-      // Check if this blockquote is an 'Aha! Moment'
       let isAha = false;
       try {
         const textContent = JSON.stringify(node);
@@ -58,20 +57,20 @@ const MessageBubble = ({ text, sender, timestamp }) => {
 
       if (isAha) {
         return (
-          <div className="aha-moment-box my-4 relative rounded-xl overflow-hidden shadow-lg border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5 group" {...props}>
-            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500 rounded-l-xl opacity-90"></div>
-            <div className="p-4 sm:p-5 text-amber-100/90 leading-relaxed text-[15px] relative z-10 font-medium">
+          <div className="relative my-4 overflow-hidden rounded-xl border border-amber-200 bg-[#ffdcc3]/35" {...props}>
+            <div className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-gradient-to-b from-amber-400 to-amber-600"></div>
+            <div className="relative z-10 p-4 text-[15px] font-medium leading-relaxed text-[#6e3900] sm:p-5">
               {children}
             </div>
           </div>
         );
       }
-      return <blockquote className="border-l-4 border-indigo-500 pl-4 italic my-2 text-gray-400" {...props}>{children}</blockquote>;
+      return <blockquote className="my-2 border-l-4 border-emerald-500 pl-4 italic text-[#6d7a72]" {...props}>{children}</blockquote>;
     },
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 message-enter`}>
+    <div className={`message-enter mb-4 flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`transform transition-all duration-300 ease-out ${
           isVisible 
@@ -84,7 +83,7 @@ const MessageBubble = ({ text, sender, timestamp }) => {
           {/* Bot Avatar - Only for bot messages */}
           {!isUser && (
             <div className="flex-shrink-0 mr-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <div className="gradient-emerald flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md shadow-emerald-900/20">
                 <Sparkles className="w-5 h-5 text-white" strokeWidth={1.5} />
               </div>
             </div>
@@ -96,7 +95,7 @@ const MessageBubble = ({ text, sender, timestamp }) => {
             {/* Bot Name Label - Only for bot messages */}
             {!isUser && (
               <div className="mb-1 ml-1">
-                <span className="text-xs font-medium text-gray-500">MoneyMitra</span>
+                <span className="text-xs font-semibold text-emerald-700/70">MoneyMitra AI</span>
               </div>
             )}
 
@@ -104,19 +103,16 @@ const MessageBubble = ({ text, sender, timestamp }) => {
             <div
               className={`px-5 py-4 font-sans text-sm leading-relaxed ${
                 isUser
-                  ? // User bubble: indigo gradient, white text
-                    'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl rounded-br-md shadow-lg shadow-indigo-500/20'
+                  ? 'gradient-emerald rounded-2xl rounded-br-md text-white shadow-md shadow-emerald-900/20'
                   : isMirrorMode
-                    ? // Bot bubble: mirror highlight amber effect
-                      'mirror-highlight rounded-2xl rounded-tl-md text-gray-200'
-                    : // Bot bubble: glass effect, light gray text
-                    'glass rounded-2xl rounded-tl-md'
+                    ? 'mirror-highlight rounded-2xl rounded-tl-md text-[#3d4a42]'
+                    : 'rounded-2xl rounded-tl-md border border-emerald-100 bg-white text-[#3d4a42]'
               }`}
             >
               {isUser ? (
                 <p className="break-words">{text}</p>
               ) : (
-                <div className="prose prose-sm max-w-none prose-invert">
+                <div className="prose prose-sm max-w-none">
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]} 
                     components={markdownComponents}
@@ -128,7 +124,7 @@ const MessageBubble = ({ text, sender, timestamp }) => {
               
               {/* Timestamp */}
               <div className={`text-xs mt-2 font-mono ${
-                isUser ? 'text-indigo-200' : 'text-gray-500'
+                isUser ? 'text-emerald-100' : 'text-[#6d7a72]'
               }`}>
                 {formatTimestamp(timestamp)}
               </div>

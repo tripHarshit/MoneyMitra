@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Wallet, Shield, BookOpen, PiggyBank, CreditCard, TrendingUp, Sparkles, Lock, Check } from 'lucide-react';
+import { Wallet, Shield, Bot, TrendingUp, ArrowRight } from 'lucide-react';
 
 const WelcomePage = ({ onStart, isLoading = false }) => {
   const [formData, setFormData] = useState({
     occupation: '',
     ageGroup: '',
-    financialGoal: ''
+    financialGoal: '',
   });
 
   const occupationOptions = [
@@ -16,48 +16,22 @@ const WelcomePage = ({ onStart, isLoading = false }) => {
     'Homemaker',
     'Retired',
     'Self-Employed',
-    'Other'
+    'Other',
   ];
 
-  const ageGroupOptions = [
-    '18-25',
-    '26-35',
-    '36-45',
-    '46-55',
-    '55+'
-  ];
+  const ageGroupOptions = ['18-25', '26-35', '36-45', '46-55', '55+'];
 
   const financialGoals = [
-    { 
-      id: 'Save Money', 
-      label: 'Save Money', 
-      icon: PiggyBank,
-      description: 'Build your savings and emergency fund'
-    },
-    { 
-      id: 'Manage Debt', 
-      label: 'Manage Debt', 
-      icon: CreditCard,
-      description: 'Manage and eliminate your debts'
-    },
-    { 
-      id: 'Learn Basics', 
-      label: 'Learn Basics', 
-      icon: BookOpen,
-      description: 'Understand personal finance fundamentals'
-    },
-    { 
-      id: 'Invest & Grow', 
-      label: 'Invest & Grow', 
-      icon: TrendingUp,
-      description: 'Learn to grow your money wisely'
-    }
+    { id: 'Wealth Growth', icon: Wallet, description: 'Aggressive portfolio expansion' },
+    { id: 'Save Money', icon: Shield, description: 'Secure liquidity and emergency safety' },
+    { id: 'Manage Debt', icon: TrendingUp, description: 'Systematic debt reduction planning' },
+    { id: 'Learn Basics', icon: Bot, description: 'Build strong personal finance fundamentals' },
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -71,173 +45,136 @@ const WelcomePage = ({ onStart, isLoading = false }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1115] relative overflow-hidden">
-      {/* Abstract Background Elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 rounded-full blur-3xl -translate-x-48 -translate-y-48"></div>
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-purple-500/10 to-indigo-500/5 rounded-full blur-3xl translate-x-40 translate-y-40"></div>
-      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      
-      {/* Main Content */}
-      <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
-        {/* Glassmorphism Card */}
-        <div className="w-full max-w-lg mx-auto">
-          <div className="glass rounded-3xl float-shadow p-8 relative">
-            
-            {/* Header Section */}
-            <div className="text-center mb-8">
-              {/* Logo */}
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30">
-                <Wallet className="w-8 h-8 text-white" strokeWidth={1.5} />
-              </div>
-              
-              {/* Title */}
-              <h1 className="text-3xl font-semibold text-white mb-2">MoneyMitra</h1>
-              <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                Your Personal AI Financial Guide.<br />
-                <span className="text-indigo-400 font-medium">Simplified.</span>
-              </p>
-              
-              {/* Features List */}
-              <div className="flex flex-col gap-3 mb-6">
-                <div className="flex items-center justify-center space-x-3 text-gray-300">
-                  <Sparkles className="w-5 h-5 text-indigo-400" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">AI-Powered Financial Guidance</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3 text-gray-300">
-                  <Shield className="w-5 h-5 text-emerald-400" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">Secure & Private</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3 text-gray-300">
-                  <BookOpen className="w-5 h-5 text-purple-400" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">Educational Focus</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Context Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
-              {/* Occupation Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  What describes you best?
-                </label>
-                <select
-                  value={formData.occupation}
-                  onChange={(e) => handleInputChange('occupation', e.target.value)}
-                  className="w-full px-4 py-3 bg-[#22262E] border border-white/5 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 text-gray-200 appearance-none cursor-pointer outline-none"
-                  required
-                >
-                  <option value="" className="bg-[#22262E]">Select your occupation</option>
-                  {occupationOptions.map((option) => (
-                    <option key={option} value={option} className="bg-[#22262E]">
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Age Group Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Age Group
-                </label>
-                <select
-                  value={formData.ageGroup}
-                  onChange={(e) => handleInputChange('ageGroup', e.target.value)}
-                  className="w-full px-4 py-3 bg-[#22262E] border border-white/5 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 text-gray-200 appearance-none cursor-pointer outline-none"
-                >
-                  <option value="" className="bg-[#22262E]">Select your age group</option>
-                  {ageGroupOptions.map((option) => (
-                    <option key={option} value={option} className="bg-[#22262E]">
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Financial Goal Cards */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3">
-                  What's your primary financial goal?
-                </label>
-                <div className="space-y-2">
-                  {financialGoals.map((goal) => {
-                    const IconComponent = goal.icon;
-                    return (
-                      <button
-                        key={goal.id}
-                        type="button"
-                        onClick={() => handleInputChange('financialGoal', goal.id)}
-                        className={`w-full p-4 rounded-2xl border text-left transition-all duration-300 transform hover:-translate-y-0.5 ${
-                          formData.financialGoal === goal.id
-                            ? 'border-indigo-500/50 bg-indigo-500/10 shadow-lg shadow-indigo-500/10'
-                            : 'border-white/5 bg-[#22262E] hover:border-white/10 hover:bg-[#2A2F38]'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            formData.financialGoal === goal.id 
-                              ? 'bg-indigo-500/20' 
-                              : 'bg-white/5'
-                          }`}>
-                            <IconComponent className={`w-5 h-5 ${
-                              formData.financialGoal === goal.id ? 'text-indigo-400' : 'text-gray-400'
-                            }`} strokeWidth={1.5} />
-                          </div>
-                          <div className="flex-1">
-                            <div className={`font-medium text-sm ${
-                              formData.financialGoal === goal.id ? 'text-indigo-300' : 'text-gray-200'
-                            }`}>{goal.label}</div>
-                            <div className={`text-xs mt-0.5 ${
-                              formData.financialGoal === goal.id ? 'text-indigo-400/70' : 'text-gray-500'
-                            }`}>
-                              {goal.description}
-                            </div>
-                          </div>
-                          {formData.financialGoal === goal.id && (
-                            <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-white" strokeWidth={2} />
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Get Started Button */}
-              <button
-                type="submit"
-                disabled={!isFormComplete || isLoading}
-                className={`w-full py-4 px-6 rounded-2xl font-semibold text-white transition-all duration-300 transform ${
-                  isFormComplete && !isLoading
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:-translate-y-0.5 shadow-xl shadow-indigo-500/30'
-                    : 'bg-gray-700 cursor-not-allowed text-gray-400'
-                }`}
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Setting up your account...
-                  </span>
-                ) : (
-                  'Start Your Financial Journey'
-                )}
-              </button>
-
-              {/* Privacy Notice */}
-              <div className="text-center pt-2">
-                <div className="flex items-center justify-center space-x-2 text-gray-500">
-                  <Lock className="w-4 h-4" strokeWidth={1.5} />
-                  <span className="text-xs">Private & Educational. No data stored permanently.</span>
-                </div>
-              </div>
-              
-            </form>
+    <div className="min-h-screen bg-[#f2fcf8] text-[#141d1b]">
+      <div className="mx-auto flex min-h-screen max-w-2xl flex-col bg-gradient-to-b from-[#ecf6f2] to-white px-6">
+        <header className="pb-8 pt-12 text-center">
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <Wallet className="h-6 w-6 text-emerald-700" />
+            <span className="font-headline text-2xl font-bold tracking-tight text-emerald-800">MoneyMitra AI</span>
           </div>
-        </div>
+
+          <div className="mb-8">
+            <div className="mb-2 flex items-end justify-between">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Step 1 of 1</span>
+              <span className="text-xs text-[#3d4a42]">Profile Setup</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#dbe5e1]">
+              <div className="h-full w-full rounded-full bg-emerald-700"></div>
+            </div>
+          </div>
+
+          <h1 className="font-headline text-4xl font-extrabold tracking-tight text-[#141d1b]">Welcome to your Fiscal Sanctuary</h1>
+          <p className="mt-2 text-lg text-[#3d4a42]">Let&apos;s tailor your wealth curation experience.</p>
+        </header>
+
+        <main className="flex-grow space-y-10 pb-28">
+          <section className="space-y-3">
+            <label className="ml-1 block text-sm font-semibold text-[#3d4a42]">What describes you best?</label>
+            <select
+              value={formData.occupation}
+              onChange={(e) => handleInputChange('occupation', e.target.value)}
+              className="w-full cursor-pointer appearance-none rounded-2xl border border-transparent bg-[#dbe5e1] px-5 py-4 text-[#141d1b] outline-none transition focus:border-emerald-300 focus:ring-2 focus:ring-emerald-500/20"
+              required
+            >
+              <option value="" disabled>
+                Select Occupation
+              </option>
+              {occupationOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </section>
+
+          <section className="space-y-3">
+            <label className="ml-1 block text-sm font-semibold text-[#3d4a42]">Select your age group</label>
+            <div className="flex flex-wrap gap-3">
+              {ageGroupOptions.map((option) => {
+                const selected = formData.ageGroup === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleInputChange('ageGroup', option)}
+                    className={`rounded-full px-5 py-2.5 text-sm font-medium transition ${
+                      selected
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-[#dbe5e1] text-[#3d4a42] hover:bg-[#cfdad5]'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <label className="ml-1 block text-sm font-semibold text-[#3d4a42]">Primary Financial Goal</label>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {financialGoals.map((goal) => {
+                const IconComponent = goal.icon;
+                const selected = formData.financialGoal === goal.id;
+
+                return (
+                  <button
+                    key={goal.id}
+                    type="button"
+                    onClick={() => handleInputChange('financialGoal', goal.id)}
+                    className={`rounded-2xl border p-5 text-left transition ${
+                      selected
+                        ? 'border-emerald-500 bg-white shadow-md'
+                        : 'border-[#dbe5e1] bg-white hover:border-emerald-200'
+                    }`}
+                  >
+                    <IconComponent className={`mb-3 h-7 w-7 ${selected ? 'text-emerald-700' : 'text-[#6d7a72]'}`} />
+                    <h3 className="font-headline font-bold text-[#141d1b]">{goal.id}</h3>
+                    <p className="mt-1 text-xs text-[#3d4a42]">{goal.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="grid grid-cols-3 gap-4 pt-2">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf6f2] text-emerald-700">
+                <Shield className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#3d4a42]">Encrypted</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf6f2] text-emerald-700">
+                <Bot className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#3d4a42]">AI Powered</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf6f2] text-emerald-700">
+                <TrendingUp className="h-5 w-5" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#3d4a42]">Growth First</span>
+            </div>
+          </section>
+        </main>
+
+        <footer className="fixed bottom-0 left-0 right-0 mx-auto max-w-2xl border-t border-emerald-100 bg-white/90 p-6 backdrop-blur-xl">
+          <form onSubmit={handleSubmit}>
+            <button
+              type="submit"
+              disabled={!isFormComplete || isLoading}
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-lg font-bold text-white transition ${
+                isFormComplete && !isLoading
+                  ? 'gradient-emerald shadow-lg shadow-emerald-900/20 hover:brightness-105'
+                  : 'cursor-not-allowed bg-[#bccac0]'
+              }`}
+            >
+              {isLoading ? 'Setting up your account...' : 'Get Started'}
+              {!isLoading && <ArrowRight className="h-5 w-5" />}
+            </button>
+          </form>
+        </footer>
       </div>
     </div>
   );
