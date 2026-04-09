@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import WelcomePage from './WelcomePage'
+import NewsPage from './pages/NewsPage'
+import LearningHub from './pages/LearningHub'
 import ChatInterface from './ChatInterface'
 import ChatList from './components/ChatList'
 import ProfileDropdown from './components/ProfileDropdown'
 import NewChatModal from './components/NewChatModal'
 import { getUserProfile, saveUserPreferences, hasCompletedSetup } from './services/userService'
 import { createChat, subscribeToChats, deleteChat } from './services/chatService'
-import { Plus, Menu, X, MessageSquare, Trash2, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+import { Plus, Menu, X, MessageSquare, Trash2, TrendingUp, Wallet, GraduationCap, BookOpen, Lock } from 'lucide-react'
 import './App.css'
 
 function MainApp() {
@@ -21,7 +23,9 @@ function MainApp() {
   const [setupLoading, setSetupLoading] = useState(false);
   const [showSetup, setShowSetup] = useState(false);
   const [userPreferences, setUserPreferences] = useState(null);
+  const [userLevel, setUserLevel] = useState(1);
   const [chats, setChats] = useState([]);
+  const navigate = useNavigate();
   const [activeChatId, setActiveChatId] = useState(null);
   const [showNewChatModal, setShowNewChatModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -38,6 +42,7 @@ function MainApp() {
         if (profile && profile.preferences && profile.setupCompleted) {
           // User has completed setup
           setUserPreferences(profile.preferences);
+          setUserLevel(profile.currentLevel || 1);
           setShowSetup(false);
         } else {
           // First time user - show setup
@@ -241,6 +246,32 @@ function MainApp() {
             </div>
           </div>
 
+          {/* Learning Paths */}
+          <div className="px-4 py-4 border-b border-white/5 space-y-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-400 font-medium">Micro-Courses</span>
+              <GraduationCap className="w-4 h-4 text-indigo-400" strokeWidth={1.5} />
+            </div>
+            
+            <button
+               onClick={() => navigate('/learn')}
+               className="w-full text-left px-3 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-xl transition-all border border-indigo-500/20 font-medium text-sm flex items-center justify-between"
+            >
+              <span>Current Level: {userLevel}</span>
+              <BookOpen className="w-4 h-4 text-indigo-400" />
+            </button>
+            <div className="flex flex-col gap-1.5 mt-2 px-1">
+               <div className="text-xs text-gray-500/70 font-medium flex items-center justify-between">
+                 <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Level {userLevel + 1}</span>
+                 <span className="text-[10px] uppercase tracking-wider">Locked</span>
+               </div>
+               <div className="text-xs text-gray-500/40 font-medium flex items-center justify-between">
+                 <span className="flex items-center gap-1.5"><Lock className="w-3 h-3" /> Level {userLevel + 2}</span>
+                 <span className="text-[10px] uppercase tracking-wider">Locked</span>
+               </div>
+            </div>
+          </div>
+
           {/* Chat List */}
           <div className="flex-1 overflow-y-auto">
             {chats.length === 0 ? (
@@ -376,6 +407,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
+          <Route path="/learn" element={<ProtectedRoute><LearningHub /></ProtectedRoute>} />
           
           {/* Fallback - Redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

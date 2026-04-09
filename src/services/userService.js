@@ -78,6 +78,8 @@ export const saveUserPreferences = async (userId, preferences) => {
           ageGroup: preferences.ageGroup,
           financialGoal: preferences.financialGoal
         },
+        currentLevel: 1,
+        totalXP: 0,
         setupCompleted: true,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
@@ -113,9 +115,37 @@ export const updatePreference = async (userId, field, value) => {
   }
 };
 
+/**
+ * Update user's learning level
+ * @param {string} userId - The user's ID
+ * @param {number} newLevel - The new level arrived at
+ * @param {number} xpEarned - XP awarded
+ * @returns {Promise<void>}
+ */
+export const updateUserLevel = async (userId, newLevel, xpEarned) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return;
+
+    const currentXP = userSnap.data().totalXP || 0;
+    
+    await updateDoc(userRef, {
+      currentLevel: newLevel,
+      totalXP: currentXP + xpEarned,
+      updatedAt: serverTimestamp()
+    });
+    console.log('✅ User level updated to:', newLevel);
+  } catch (error) {
+    console.error('❌ Error updating user level:', error.message);
+    throw error;
+  }
+};
+
 export default {
   getUserProfile,
   hasCompletedSetup,
   saveUserPreferences,
-  updatePreference
+  updatePreference,
+  updateUserLevel
 };

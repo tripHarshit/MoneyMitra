@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Sparkles } from 'lucide-react';
 
 const MessageBubble = ({ text, sender, timestamp }) => {
@@ -20,6 +21,7 @@ const MessageBubble = ({ text, sender, timestamp }) => {
   };
 
   const isUser = sender === 'user';
+  const isMirrorMode = !isUser && typeof text === 'string' && text.includes('### Purchase Mirror Reality Check');
 
   // Custom markdown styling components for dark theme
   const markdownComponents = {
@@ -36,7 +38,36 @@ const MessageBubble = ({ text, sender, timestamp }) => {
       inline ? 
         <code className="bg-[#22262E] px-2 py-1 rounded text-sm font-mono text-indigo-300" {...props} /> :
         <code className="bg-[#22262E] p-3 rounded-xl block text-sm font-mono my-2 text-indigo-300" {...props} />,
-    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-indigo-500 pl-4 italic my-2 text-gray-400" {...props} />,
+    td: ({node, ...props}) => <td className="px-4 py-3 align-top leading-relaxed" {...props} />,
+    table: ({node, ...props}) => (
+      <div className="overflow-x-auto my-4 rounded-xl shadow-lg border border-gray-700/50 bg-[#1e2128]">
+        <table className="w-full text-left border-collapse text-sm text-gray-300" {...props} />
+      </div>
+    ),
+    thead: ({node, ...props}) => <thead className="bg-[#2a2e37] text-gray-200 border-b border-gray-700/50" {...props} />,
+    tbody: ({node, ...props}) => <tbody className="divide-y divide-gray-700/30" {...props} />,
+    tr: ({node, ...props}) => <tr className="hover:bg-white/[0.02] transition-colors" {...props} />,
+    th: ({node, ...props}) => <th className="px-4 py-3 font-semibold whitespace-nowrap text-indigo-200" {...props} />,
+    blockquote: ({node, children, ...props}) => {
+      // Check if this blockquote is an 'Aha! Moment'
+      let isAha = false;
+      try {
+        const textContent = JSON.stringify(node);
+        isAha = textContent.includes('Aha! Moment') || textContent.includes('💡');
+      } catch (e) {}
+
+      if (isAha) {
+        return (
+          <div className="aha-moment-box my-4 relative rounded-xl overflow-hidden shadow-lg border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5 group" {...props}>
+            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500 rounded-l-xl opacity-90"></div>
+            <div className="p-4 sm:p-5 text-amber-100/90 leading-relaxed text-[15px] relative z-10 font-medium">
+              {children}
+            </div>
+          </div>
+        );
+      }
+      return <blockquote className="border-l-4 border-indigo-500 pl-4 italic my-2 text-gray-400" {...props}>{children}</blockquote>;
+    },
   };
 
   return (
@@ -75,7 +106,10 @@ const MessageBubble = ({ text, sender, timestamp }) => {
                 isUser
                   ? // User bubble: indigo gradient, white text
                     'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl rounded-br-md shadow-lg shadow-indigo-500/20'
-                  : // Bot bubble: glass effect, light gray text
+                  : isMirrorMode
+                    ? // Bot bubble: mirror highlight amber effect
+                      'mirror-highlight rounded-2xl rounded-tl-md text-gray-200'
+                    : // Bot bubble: glass effect, light gray text
                     'glass rounded-2xl rounded-tl-md'
               }`}
             >
@@ -83,7 +117,10 @@ const MessageBubble = ({ text, sender, timestamp }) => {
                 <p className="break-words">{text}</p>
               ) : (
                 <div className="prose prose-sm max-w-none prose-invert">
-                  <ReactMarkdown components={markdownComponents}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]} 
+                    components={markdownComponents}
+                  >
                     {text}
                   </ReactMarkdown>
                 </div>

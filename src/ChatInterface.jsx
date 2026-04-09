@@ -65,7 +65,10 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
   const getSuggestedQuestions = () => {
     const { occupation, ageGroup, primaryGoal } = userDetails || {};
     
-    const suggestions = [];
+    const suggestions = [
+      'Create a budget for me',
+      'Analyze my daily habit cost'
+    ];
     
     // Based on occupation
     if (occupation === 'Student') {
@@ -115,7 +118,7 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
       suggestions.push('What are the financial basics I should know?');
     }
 
-    return suggestions.slice(0, 3); // Return only first 3 suggestions
+    return suggestions.slice(0, 5); // Return only first 5 suggestions
   };
 
   // Build conversation history for context-aware responses
@@ -126,7 +129,7 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
     }));
   };
 
-  const handleSendMessage = async (message) => {
+  const handleSendMessage = async (message, hiddenPrompt = null) => {
     if (!message.trim() || !user?.uid || !chatId) return;
 
     // Create optimistic user message for immediate display
@@ -150,8 +153,9 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
       // Get conversation history for context (exclude the temp message)
       const conversationHistory = getConversationHistory();
       
-      // Call Gemini API with conversation history
-      const botResponseText = await fetchGeminiResponse(message, userDetails, conversationHistory);
+      // Call Gemini API with conversation history. Use hiddenPrompt if provided.
+      const promptToSend = hiddenPrompt || message;
+      const botResponseText = await fetchGeminiResponse(promptToSend, userDetails, conversationHistory);
       
       // Save bot response to Firestore
       await addMessage(user.uid, chatId, 'assistant', botResponseText);
@@ -234,11 +238,19 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
             </div>
           </div>
 
-          {/* Right - Profile Dropdown */}
-          <ProfileDropdown 
-            userPreferences={userPreferences} 
-            onUpdatePreferences={onUpdatePreferences}
-          />
+          {/* Right - News & Profile Dropdown */}
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/news')}
+              className="px-4 py-2 bg-indigo-500/10 text-indigo-400 text-sm font-medium rounded-xl border border-indigo-500/20 hover:bg-indigo-500/20 transition-all flex items-center gap-2"
+            >
+              Latest News
+            </button>
+            <ProfileDropdown 
+              userPreferences={userPreferences} 
+              onUpdatePreferences={onUpdatePreferences}
+            />
+          </div>
         </div>
       </header>
 
@@ -329,6 +341,43 @@ const ChatInterface = ({ userDetails, chatId, chatData, userPreferences, onUpdat
               </div>
             </div>
           )}
+
+          {/* Quick Actions */}
+          <div className="flex gap-2 mb-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+             <button
+                type="button"
+                onClick={() => handleSendMessage(
+                  "Generate a budget table",
+                  "Create a highly structured and detailed personalized monthly budget table for me based on my profile, following the 50/30/20 rule. Output it as a clean Markdown table."
+                )}
+                disabled={isTyping}
+                className="flex items-center gap-1.5 text-xs font-medium bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full border border-emerald-500/20 hover:bg-emerald-500/20 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                <span>Generate Budget Table</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSendMessage(
+                  "Calculate my Latte Factor",
+                  "I want to calculate my Latte Factor. Please ask me to input a small daily habit I spend money on (like coffee, snacks). Wait for my answer. After I provide it, show me a table of how much it costs me in 10, 20, and 30 years considering an opportunity cost of 7% annual return."
+                )}
+                disabled={isTyping}
+                className="flex items-center gap-1.5 text-xs font-medium bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full border border-amber-500/20 hover:bg-amber-500/20 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="text-sm leading-none">☕</span>
+                <span>Latte Factor Calculator</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setInputValue("I want to mirror a purchase: I am thinking of buying [Item] for ₹[Amount].")}
+                disabled={isTyping}
+                className="flex items-center gap-1.5 text-xs font-medium bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/20 hover:bg-blue-500/20 whitespace-nowrap transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="text-sm leading-none">🔍</span>
+                <span>Mirror a Purchase</span>
+              </button>
+          </div>
 
           {/* Input Form */}
           <form onSubmit={handleSubmit} className="flex items-end space-x-3 mb-3">
