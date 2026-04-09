@@ -24,7 +24,7 @@ const NewsPage = () => {
         <header className="mb-8 flex flex-col gap-4 rounded-3xl border border-emerald-100 bg-white/85 px-5 py-5 backdrop-blur-xl md:flex-row md:items-center md:justify-between md:px-7">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/app')}
               className="rounded-full p-2 text-[#3d4a42] transition hover:bg-[#ecf6f2]"
               aria-label="Back to app"
             >

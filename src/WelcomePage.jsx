@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Wallet, Shield, Bot, TrendingUp, ArrowRight } from 'lucide-react';
+import { Wallet, Shield, Bot, TrendingUp, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 
-const WelcomePage = ({ onStart, isLoading = false }) => {
+const WelcomePage = ({ onStart, isLoading = false, error = '' }) => {
   const [formData, setFormData] = useState({
     occupation: '',
     ageGroup: '',
@@ -19,162 +19,228 @@ const WelcomePage = ({ onStart, isLoading = false }) => {
     'Other',
   ];
 
-  const ageGroupOptions = ['18-25', '26-35', '36-45', '46-55', '55+'];
+  const ageGroupOptions = ['18–25', '26–35', '36–45', '46–55', '55+'];
 
   const financialGoals = [
-    { id: 'Wealth Growth', icon: Wallet, description: 'Aggressive portfolio expansion' },
-    { id: 'Save Money', icon: Shield, description: 'Secure liquidity and emergency safety' },
-    { id: 'Manage Debt', icon: TrendingUp, description: 'Systematic debt reduction planning' },
-    { id: 'Learn Basics', icon: Bot, description: 'Build strong personal finance fundamentals' },
+    { id: 'Wealth Growth',  icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', description: 'Aggressive portfolio expansion' },
+    { id: 'Save Money',     icon: Wallet,     color: 'text-sky-600',     bg: 'bg-sky-50',     border: 'border-sky-200',     description: 'Build a secure safety net' },
+    { id: 'Manage Debt',    icon: Shield,     color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-200',   description: 'Systematic debt reduction' },
+    { id: 'Learn Basics',   icon: Bot,        color: 'text-violet-600',  bg: 'bg-violet-50',  border: 'border-violet-200',  description: 'Build personal finance fundamentals' },
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const isFormComplete = formData.occupation && formData.financialGoal;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormComplete && onStart) {
-      onStart(formData);
-    }
+    if (isFormComplete && onStart) onStart(formData);
   };
 
+  const trustBadges = [
+    { icon: Shield, label: 'End-to-end encrypted' },
+    { icon: Bot,    label: 'Powered by Gemini AI' },
+    { icon: Sparkles, label: 'Personalized for you' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#f2fcf8] text-[#141d1b]">
-      <div className="mx-auto flex min-h-screen max-w-2xl flex-col bg-gradient-to-b from-[#ecf6f2] to-white px-6">
-        <header className="pb-8 pt-12 text-center">
-          <div className="mb-6 flex items-center justify-center gap-2">
-            <Wallet className="h-6 w-6 text-emerald-700" />
-            <span className="font-headline text-2xl font-bold tracking-tight text-emerald-800">MoneyMitra AI</span>
+    <div className="min-h-screen bg-[#f0faf4] text-[#0e1c16]">
+      {/* Split layout on large screens */}
+      <div className="flex min-h-screen flex-col lg:flex-row">
+
+        {/* Left panel – brand/hero */}
+        <div className="sidebar-bg relative hidden flex-col justify-between px-12 py-16 lg:flex lg:w-[42%]">
+          {/* Decorative glow */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
+            <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-emerald-400/10 blur-2xl" />
           </div>
 
-          <div className="mb-8">
-            <div className="mb-2 flex items-end justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Step 1 of 1</span>
-              <span className="text-xs text-[#3d4a42]">Profile Setup</span>
+          {/* Logo */}
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-emerald shadow-lg shadow-emerald-900/30">
+              <Wallet className="h-5 w-5 text-white" />
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#dbe5e1]">
-              <div className="h-full w-full rounded-full bg-emerald-700"></div>
+            <div>
+              <p className="font-headline text-lg font-extrabold text-white">MoneyMitra</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400/60">AI Financial Coach</p>
             </div>
           </div>
 
-          <h1 className="font-headline text-4xl font-extrabold tracking-tight text-[#141d1b]">Welcome to your Fiscal Sanctuary</h1>
-          <p className="mt-2 text-lg text-[#3d4a42]">Let&apos;s tailor your wealth curation experience.</p>
-        </header>
+          {/* Hero copy */}
+          <div className="relative space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+              <Sparkles className="h-3 w-3" /> Personalised just for you
+            </div>
+            <h1 className="font-headline text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
+              Your Fiscal<br />Sanctuary
+            </h1>
+            <p className="text-base leading-relaxed text-emerald-100/60">
+              Tell us a little about yourself and we'll tailor your AI coach, insights, and goals to fit your life perfectly.
+            </p>
 
-        <main className="flex-grow space-y-10 pb-28">
-          <section className="space-y-3">
-            <label className="ml-1 block text-sm font-semibold text-[#3d4a42]">What describes you best?</label>
-            <select
-              value={formData.occupation}
-              onChange={(e) => handleInputChange('occupation', e.target.value)}
-              className="w-full cursor-pointer appearance-none rounded-2xl border border-transparent bg-[#dbe5e1] px-5 py-4 text-[#141d1b] outline-none transition focus:border-emerald-300 focus:ring-2 focus:ring-emerald-500/20"
-              required
-            >
-              <option value="" disabled>
-                Select Occupation
-              </option>
-              {occupationOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
+            {/* Trust badges */}
+            <div className="space-y-3 pt-2">
+              {trustBadges.map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15">
+                    <Icon className="h-3.5 w-3.5 text-emerald-300" />
+                  </div>
+                  <p className="text-sm font-medium text-emerald-200/70">{label}</p>
+                </div>
               ))}
-            </select>
-          </section>
-
-          <section className="space-y-3">
-            <label className="ml-1 block text-sm font-semibold text-[#3d4a42]">Select your age group</label>
-            <div className="flex flex-wrap gap-3">
-              {ageGroupOptions.map((option) => {
-                const selected = formData.ageGroup === option;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => handleInputChange('ageGroup', option)}
-                    className={`rounded-full px-5 py-2.5 text-sm font-medium transition ${
-                      selected
-                        ? 'bg-emerald-700 text-white'
-                        : 'bg-[#dbe5e1] text-[#3d4a42] hover:bg-[#cfdad5]'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
             </div>
-          </section>
+          </div>
 
-          <section className="space-y-3">
-            <label className="ml-1 block text-sm font-semibold text-[#3d4a42]">Primary Financial Goal</label>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {financialGoals.map((goal) => {
-                const IconComponent = goal.icon;
-                const selected = formData.financialGoal === goal.id;
+          {/* Bottom caption */}
+          <p className="relative text-xs text-emerald-400/40">
+            Used by 1,200+ students &amp; professionals across India
+          </p>
+        </div>
 
-                return (
-                  <button
-                    key={goal.id}
-                    type="button"
-                    onClick={() => handleInputChange('financialGoal', goal.id)}
-                    className={`rounded-2xl border p-5 text-left transition ${
-                      selected
-                        ? 'border-emerald-500 bg-white shadow-md'
-                        : 'border-[#dbe5e1] bg-white hover:border-emerald-200'
-                    }`}
-                  >
-                    <IconComponent className={`mb-3 h-7 w-7 ${selected ? 'text-emerald-700' : 'text-[#6d7a72]'}`} />
-                    <h3 className="font-headline font-bold text-[#141d1b]">{goal.id}</h3>
-                    <p className="mt-1 text-xs text-[#3d4a42]">{goal.description}</p>
-                  </button>
-                );
-              })}
+        {/* Right panel – form */}
+        <div className="flex flex-1 flex-col">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 px-6 pt-8 lg:hidden">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-emerald">
+              <Wallet className="h-4 w-4 text-white" />
             </div>
-          </section>
+            <span className="font-headline text-lg font-extrabold text-emerald-900">MoneyMitra</span>
+          </div>
 
-          <section className="grid grid-cols-3 gap-4 pt-2">
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf6f2] text-emerald-700">
-                <Shield className="h-5 w-5" />
+          <div className="flex-1 overflow-y-auto px-6 pb-36 pt-8 md:px-10 lg:px-14 lg:pt-16">
+            <div className="mx-auto max-w-lg">
+              <div className="mb-8">
+                <h2 className="font-headline text-3xl font-extrabold tracking-tight text-[#0e1c16]">Set up your profile</h2>
+                <p className="mt-1.5 text-sm text-[#6b7e73]">Takes 30 seconds — personalises everything.</p>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#3d4a42]">Encrypted</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf6f2] text-emerald-700">
-                <Bot className="h-5 w-5" />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#3d4a42]">AI Powered</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ecf6f2] text-emerald-700">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#3d4a42]">Growth First</span>
-            </div>
-          </section>
-        </main>
 
-        <footer className="fixed bottom-0 left-0 right-0 mx-auto max-w-2xl border-t border-emerald-100 bg-white/90 p-6 backdrop-blur-xl">
-          <form onSubmit={handleSubmit}>
-            <button
-              type="submit"
-              disabled={!isFormComplete || isLoading}
-              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-lg font-bold text-white transition ${
-                isFormComplete && !isLoading
-                  ? 'gradient-emerald shadow-lg shadow-emerald-900/20 hover:brightness-105'
-                  : 'cursor-not-allowed bg-[#bccac0]'
-              }`}
-            >
-              {isLoading ? 'Setting up your account...' : 'Get Started'}
-              {!isLoading && <ArrowRight className="h-5 w-5" />}
-            </button>
-          </form>
-        </footer>
+              {error && (
+                <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Occupation */}
+                <section>
+                  <label className="mb-2 block text-sm font-semibold text-[#0e1c16]">
+                    What best describes you?
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.occupation}
+                      onChange={(e) => handleInputChange('occupation', e.target.value)}
+                      className="w-full cursor-pointer appearance-none rounded-2xl border border-[#d4e8dc] bg-white px-5 py-4 text-sm text-[#0e1c16] shadow-sm transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/15"
+                      required
+                    >
+                      <option value="" disabled>Choose your occupation…</option>
+                      {occupationOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#9aada3]">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={2}>
+                        <path d="M4 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Age group */}
+                <section>
+                  <label className="mb-2 block text-sm font-semibold text-[#0e1c16]">Age group</label>
+                  <div className="flex flex-wrap gap-2">
+                    {ageGroupOptions.map((option) => {
+                      const selected = formData.ageGroup === option;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => handleInputChange('ageGroup', option)}
+                          className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
+                            selected
+                              ? 'border-emerald-500 bg-emerald-600 text-white shadow-md shadow-emerald-900/15'
+                              : 'border-[#d4e8dc] bg-white text-[#3d5246] hover:border-emerald-300 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* Financial goal */}
+                <section>
+                  <label className="mb-2 block text-sm font-semibold text-[#0e1c16]">Primary financial goal</label>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {financialGoals.map((goal) => {
+                      const Icon = goal.icon;
+                      const selected = formData.financialGoal === goal.id;
+                      return (
+                        <button
+                          key={goal.id}
+                          type="button"
+                          onClick={() => handleInputChange('financialGoal', goal.id)}
+                          className={`relative flex flex-col items-start rounded-2xl border p-4 text-left transition ${
+                            selected
+                              ? `${goal.border} ${goal.bg} shadow-md`
+                              : 'border-[#d4e8dc] bg-white hover:border-emerald-200 hover:bg-emerald-50/50'
+                          }`}
+                        >
+                          {selected && (
+                            <div className="absolute right-3 top-3">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            </div>
+                          )}
+                          <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${selected ? goal.bg : 'bg-[#f0faf4]'}`}>
+                            <Icon className={`h-4.5 w-4.5 ${goal.color}`} />
+                          </div>
+                          <p className="font-headline text-sm font-bold text-[#0e1c16]">{goal.id}</p>
+                          <p className="mt-0.5 text-xs text-[#6b7e73]">{goal.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              </form>
+            </div>
+          </div>
+
+          {/* Fixed CTA */}
+          <div className="fixed bottom-0 left-0 right-0 border-t border-[#d4e8dc] bg-white/92 px-6 py-5 backdrop-blur-xl lg:left-[42%] md:px-10 lg:px-14">
+            <div className="mx-auto max-w-lg">
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={!isFormComplete || isLoading}
+                className={`flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold text-white transition ${
+                  isFormComplete && !isLoading
+                    ? 'gradient-emerald shadow-xl shadow-emerald-900/20 hover:brightness-110'
+                    : 'cursor-not-allowed bg-[#c0d4ca]'
+                }`}
+              >
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Setting up your account…
+                  </>
+                ) : (
+                  <>
+                    Start with MoneyMitra
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+              <p className="mt-2.5 text-center text-xs text-[#9aada3]">
+                Free to use · No credit card required
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

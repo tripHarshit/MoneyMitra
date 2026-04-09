@@ -1,28 +1,72 @@
 /* MoneyMitra shared UI utilities */
 
+/* ─── Brand gradients ───────────────────────────────── */
 .gradient-emerald {
-  background: linear-gradient(135deg, #006948 0%, #00855d 100%);
+  background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+}
+
+.gradient-emerald-bright {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
 }
 
 .gradient-emerald-soft {
-  background: linear-gradient(180deg, #ecf6f2 0%, #ffffff 100%);
+  background: linear-gradient(180deg, #e8f5ed 0%, #ffffff 100%);
 }
 
-.panel-shadow {
-  box-shadow: 0 14px 40px rgba(0, 68, 47, 0.08);
+.gradient-amber {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
 }
 
+/* ─── Sidebar gradient ──────────────────────────────── */
+.sidebar-bg {
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(5, 150, 105, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(4, 120, 87, 0.12) 0%, transparent 50%),
+    #0b1f16;
+}
+
+/* ─── Chat message background ───────────────────────── */
+.message-area-bg {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(180, 210, 195, 0.28) 1px, transparent 0),
+    #f0faf4;
+  background-size: 24px 24px;
+}
+
+/* ─── Mirror message highlight ──────────────────────── */
+.mirror-highlight {
+  background: linear-gradient(135deg, rgba(255, 183, 125, 0.18) 0%, rgba(240, 250, 244, 0.9) 100%);
+  border: 1px solid rgba(177, 95, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(177, 95, 0, 0.07);
+}
+
+/* ─── Shimmer loading ───────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #e8f5ed 25%, #d4e8dc 50%, #e8f5ed 75%);
+  background-size: 220% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* ─── Fade animations ───────────────────────────────── */
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
   animation: fade-in 0.3s ease-out;
+}
+
+/* ─── Panel shadows ─────────────────────────────────── */
+.panel-shadow {
+  box-shadow:
+    0 1px 3px rgba(0, 60, 40, 0.05),
+    0 8px 28px rgba(0, 60, 40, 0.08);
 }
 
 .chat-message {
@@ -30,15 +74,66 @@
   overflow-wrap: break-word;
 }
 
-.message-area-bg {
-  background:
-    radial-gradient(circle at 1px 1px, rgba(188, 202, 192, 0.25) 1px, transparent 0),
-    #f2fcf8;
-  background-size: 20px 20px;
+/* ─── Stat badge ────────────────────────────────────── */
+.badge-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(167, 243, 208, 0.2);
+  color: #065f46;
+  border: 1px solid rgba(167, 243, 208, 0.5);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-.mirror-highlight {
-  background: linear-gradient(135deg, rgba(255, 183, 125, 0.22) 0%, rgba(236, 246, 242, 0.8) 100%);
-  border: 1px solid rgba(177, 95, 0, 0.25);
-  box-shadow: 0 8px 20px rgba(177, 95, 0, 0.08);
+/* ─── Card hover lift ───────────────────────────────── */
+.card-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 6px rgba(0, 60, 40, 0.06),
+    0 16px 40px rgba(0, 60, 40, 0.12);
+}
+
+/* ─── Input focus glow ──────────────────────────────── */
+.input-field {
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px solid #d4e8dc;
+  background: #fff;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: #0e1c16;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: #9aada3;
+}
+
+.input-field:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+/* ─── Progress bar ──────────────────────────────────── */
+.progress-track {
+  height: 6px;
+  background: #d4e8dc;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #059669, #10b981);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

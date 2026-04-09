@@ -112,7 +112,7 @@ const LearningHub = () => {
         <header className="mb-8 flex flex-col gap-4 rounded-3xl border border-emerald-100 bg-white/80 px-6 py-6 backdrop-blur-xl md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/app')}
               className="rounded-full p-2 text-[#3d4a42] transition hover:bg-[#ecf6f2]"
               aria-label="Back to dashboard"
             >
