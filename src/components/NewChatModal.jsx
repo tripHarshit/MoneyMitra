@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createChat } from '../services/chatService';
-import { X, BookOpen, PiggyBank, CreditCard, TrendingUp, Palmtree, BarChart3, Check } from 'lucide-react';
+import { X, BookOpen, PiggyBank, CreditCard, TrendingUp, Palmtree, BarChart3, Check, Sparkles } from 'lucide-react';
 
 const NewChatModal = ({ onClose, onChatCreated, userPreferences }) => {
   const [primaryGoal, setPrimaryGoal] = useState('');
@@ -10,17 +10,17 @@ const NewChatModal = ({ onClose, onChatCreated, userPreferences }) => {
   const { user } = useAuth();
 
   const goals = [
-    { id: 'Learn Basics', icon: BookOpen, description: 'Understand financial fundamentals' },
-    { id: 'Save Money', icon: PiggyBank, description: 'Build savings and emergency fund' },
-    { id: 'Manage Debt', icon: CreditCard, description: 'Pay off and manage debts' },
-    { id: 'Invest & Grow', icon: TrendingUp, description: 'Learn about investments' },
-    { id: 'Plan Retirement', icon: Palmtree, description: 'Prepare for retirement' },
-    { id: 'Budget Management', icon: BarChart3, description: 'Create and manage budgets' }
+    { id: 'Learn Basics', icon: BookOpen, description: 'Foundation of finance' },
+    { id: 'Save Money', icon: PiggyBank, description: 'Optimization strategies' },
+    { id: 'Manage Debt', icon: CreditCard, description: 'Clearance and consolidation' },
+    { id: 'Invest & Grow', icon: TrendingUp, description: 'Portfolio scaling' },
+    { id: 'Plan Retirement', icon: Palmtree, description: 'Long-term security' },
+    { id: 'Budget Management', icon: BarChart3, description: 'Daily flow control' },
   ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!primaryGoal) {
       setError('Please select a goal for this chat');
       return;
@@ -33,9 +33,9 @@ const NewChatModal = ({ onClose, onChatCreated, userPreferences }) => {
       const chatId = await createChat(user.uid, {
         occupation: userPreferences?.occupation || 'Not specified',
         ageGroup: userPreferences?.ageGroup || 'Not specified',
-        goal: primaryGoal
+        goal: primaryGoal,
       });
-      
+
       onChatCreated(chatId);
     } catch (err) {
       setError(err.message || 'Failed to create chat');
@@ -46,98 +46,87 @@ const NewChatModal = ({ onClose, onChatCreated, userPreferences }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      {/* Modal */}
-      <div className="bg-[#1A1D23] rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-white/5 float-shadow">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Start New Chat</h2>
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4 backdrop-blur-md">
+      <div className="w-full max-w-3xl overflow-hidden rounded-2xl border border-emerald-100 bg-white panel-shadow">
+        <div className="px-8 pb-6 pt-10">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="font-headline text-3xl font-extrabold tracking-tight text-[#141d1b]">Start a New Chat</h2>
+              <p className="mt-1 text-[#3d4a42]">What would you like to focus on today?</p>
+            </div>
             <button
               onClick={onClose}
-              className="text-white/60 hover:text-white transition-colors duration-300 p-1 hover:bg-white/10 rounded-lg"
               disabled={loading}
+              className="rounded-full p-2 text-[#6d7a72] transition hover:bg-[#ecf6f2] hover:text-[#141d1b]"
+              aria-label="Close new chat modal"
             >
-              <X className="w-5 h-5" strokeWidth={1.5} />
+              <X className="h-5 w-5" />
             </button>
           </div>
-          <p className="text-white/80 text-sm mt-1">What would you like help with?</p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5">
-          {/* Error Message */}
+        <form onSubmit={handleSubmit} className="px-8 pb-10">
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 mb-4">
-              <p className="text-sm text-red-400">{error}</p>
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {error}
             </div>
           )}
 
-          {/* Goal Selection - Card Style */}
-          <div className="space-y-2">
-            {goals.map(goal => {
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {goals.map((goal) => {
               const IconComponent = goal.icon;
+              const selected = primaryGoal === goal.id;
+
               return (
                 <button
                   key={goal.id}
                   type="button"
                   onClick={() => setPrimaryGoal(goal.id)}
                   disabled={loading}
-                  className={`w-full p-4 rounded-2xl border text-left transition-all duration-300 flex items-center gap-4 hover:-translate-y-0.5 ${
-                    primaryGoal === goal.id
-                      ? 'border-indigo-500/50 bg-indigo-500/10'
-                      : 'border-white/5 hover:border-white/10 bg-[#22262E] hover:bg-[#2A2F38]'
-                  } disabled:opacity-50 disabled:hover:translate-y-0`}
+                  className={`relative rounded-2xl border p-5 text-left transition ${
+                    selected
+                      ? 'border-emerald-500 bg-emerald-50 shadow-sm'
+                      : 'border-emerald-100 bg-[#ecf6f2]/45 hover:border-emerald-300'
+                  }`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    primaryGoal === goal.id 
-                      ? 'bg-indigo-500/20' 
-                      : 'bg-white/5'
-                  }`}>
-                    <IconComponent className={`w-5 h-5 ${primaryGoal === goal.id ? 'text-indigo-400' : 'text-gray-400'}`} strokeWidth={1.5} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`font-medium text-sm ${primaryGoal === goal.id ? 'text-indigo-300' : 'text-gray-200'}`}>
-                      {goal.id}
-                    </p>
-                    <p className={`text-xs ${primaryGoal === goal.id ? 'text-indigo-400/70' : 'text-gray-500'}`}>
-                      {goal.description}
-                    </p>
-                  </div>
-                  {primaryGoal === goal.id && (
-                    <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" strokeWidth={2} />
-                    </div>
+                  {selected && (
+                    <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-700 text-white">
+                      <Check className="h-3.5 w-3.5" />
+                    </span>
                   )}
+                  <div className="mb-3 inline-flex rounded-xl bg-white p-2.5 text-emerald-700 shadow-sm">
+                    <IconComponent className="h-5 w-5" />
+                  </div>
+                  <p className="font-headline text-base font-bold text-[#141d1b]">{goal.id}</p>
+                  <p className="mt-1 text-xs text-[#3d4a42]">{goal.description}</p>
                 </button>
               );
             })}
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-3 pt-5">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 px-4 py-3 border border-white/10 rounded-2xl text-gray-300 font-medium text-sm hover:bg-white/5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !primaryGoal}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl font-medium text-sm hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Creating...
-                </>
-              ) : (
-                'Start Chat'
-              )}
-            </button>
+          <div className="mt-7 flex items-center justify-between gap-3">
+            <div className="hidden items-center gap-2 rounded-full bg-[#ffdcc3]/40 px-3 py-1.5 text-xs font-semibold text-[#6e3900] md:inline-flex">
+              <Sparkles className="h-3.5 w-3.5" />
+              AI Analysis Enabled
+            </div>
+
+            <div className="ml-auto flex items-center gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading}
+                className="rounded-xl px-5 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-[#ecf6f2] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !primaryGoal}
+                className="gradient-emerald rounded-xl px-7 py-2.5 text-sm font-bold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-55"
+              >
+                {loading ? 'Creating...' : 'Start Chat'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

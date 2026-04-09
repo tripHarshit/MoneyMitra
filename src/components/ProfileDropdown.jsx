@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ChevronDown, Edit3, LogOut, User } from 'lucide-react';
+import { ChevronDown, Edit3, LogOut, ShieldCheck, Check, X } from 'lucide-react';
 
 const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,47 +11,43 @@ const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
   const [editedPreferences, setEditedPreferences] = useState({
     occupation: '',
     ageGroup: '',
-    financialGoal: ''
+    financialGoal: '',
   });
-  
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const containerRef = useRef(null);
 
   const occupations = [
-    'Student',
-    'Working Professional',
-    'Freelancer',
-    'Small Business Owner',
-    'Homemaker',
-    'Retired',
-    'Self-Employed',
-    'Other'
+    'Student', 'Working Professional', 'Freelancer',
+    'Small Business Owner', 'Homemaker', 'Retired', 'Self-Employed', 'Other',
   ];
+  const ageGroups = ['18-25', '26-35', '36-45', '46-55', '55+'];
+  const goals = ['Learn Basics', 'Save Money', 'Manage Debt', 'Invest & Grow', 'Plan Retirement', 'Budget Management'];
 
-  const ageGroups = [
-    '18-25',
-    '26-35',
-    '36-45',
-    '46-55',
-    '55+'
-  ];
-
-  const goals = [
-    'Learn Basics',
-    'Save Money',
-    'Manage Debt',
-    'Invest & Grow',
-    'Plan Retirement',
-    'Budget Management'
-  ];
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutsideClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        if (!isEditing) setIsOpen(false);
+      }
+    };
+    const handleEsc = (e) => { if (e.key === 'Escape' && !isEditing) setIsOpen(false); };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [isOpen, isEditing]);
 
   const handleLogout = async () => {
     setLogoutLoading(true);
     try {
       await logout();
       navigate('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
+    } catch {
       setLogoutLoading(false);
     }
   };
@@ -60,22 +56,19 @@ const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
     setEditedPreferences({
       occupation: userPreferences?.occupation || '',
       ageGroup: userPreferences?.ageGroup || '',
-      financialGoal: userPreferences?.financialGoal || ''
+      financialGoal: userPreferences?.financialGoal || '',
     });
     setIsEditing(true);
   };
 
   const handleSavePreferences = async () => {
-    if (!editedPreferences.occupation || !editedPreferences.ageGroup || !editedPreferences.financialGoal) {
-      return;
-    }
-    
+    if (!editedPreferences.occupation || !editedPreferences.ageGroup || !editedPreferences.financialGoal) return;
     setSaveLoading(true);
     try {
       await onUpdatePreferences?.(editedPreferences);
       setIsEditing(false);
-    } catch (error) {
-      console.error('Error saving preferences:', error);
+    } catch {
+      // ignore
     } finally {
       setSaveLoading(false);
     }
@@ -86,16 +79,15 @@ const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
     setEditedPreferences({
       occupation: userPreferences?.occupation || '',
       ageGroup: userPreferences?.ageGroup || '',
-      financialGoal: userPreferences?.financialGoal || ''
+      financialGoal: userPreferences?.financialGoal || '',
     });
   };
 
-  // Get user initials for avatar
   const getInitials = () => {
     if (user?.displayName) {
       return user.displayName
         .split(' ')
-        .map(n => n[0])
+        .map((n) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2);
@@ -103,198 +95,152 @@ const ProfileDropdown = ({ userPreferences, onUpdatePreferences }) => {
     return user?.email?.[0]?.toUpperCase() || 'U';
   };
 
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'MoneyMitra User';
+  const initials = getInitials();
+
   return (
-    <div className="relative">
-      {/* Profile Button */}
+    <div className="relative" ref={containerRef}>
+      {/* Trigger button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-[#1A1D23] hover:bg-[#22262E] transition-all duration-300 border border-white/5 hover:border-white/10"
-        title="Open profile menu"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-label="Open profile menu"
+        aria-expanded={isOpen}
+        className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 transition ${
+          isOpen
+            ? 'border-emerald-300 bg-emerald-50'
+            : 'border-[#d4e8dc] bg-white hover:bg-[#e8f5ed]'
+        }`}
       >
-        {/* Avatar Circle */}
-        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <span className="text-white text-sm font-medium">{getInitials()}</span>
+        <div className="gradient-emerald flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white">
+          {initials}
         </div>
-        
-        {/* Dropdown Arrow */}
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-          strokeWidth={1.5}
+          className={`h-3.5 w-3.5 text-[#3d5246] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-[#1A1D23] rounded-2xl shadow-2xl border border-white/5 z-50 overflow-hidden float-shadow">
+        <div
+          className="absolute right-0 top-full z-60 mt-2 w-80 overflow-hidden rounded-2xl border border-[#d4e8dc] bg-white shadow-modal scale-in"
+          style={{ maxHeight: 'calc(100vh - 80px)', overflowY: 'auto' }}
+        >
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <span className="text-white text-lg font-semibold">{getInitials()}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium text-sm truncate">
-                  {user?.displayName || 'User'}
-                </p>
-                <p className="text-white/70 text-xs truncate">{user?.email}</p>
-              </div>
+          <div className="relative bg-linear-to-b from-[#e8f5ed] to-white px-5 pb-4 pt-5 text-center">
+            {/* Close button */}
+            <button
+              onClick={() => { if (!isEditing) setIsOpen(false); }}
+              className="absolute right-3 top-3 rounded-lg p-1.5 text-[#6b7e73] transition hover:bg-[#e8f5ed] hover:text-[#0e1c16]"
+              aria-label="Close profile menu"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            {/* Avatar */}
+            <div className="relative mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full gradient-emerald text-lg font-bold text-white shadow-md shadow-emerald-900/20">
+              {initials}
+              <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-emerald-600">
+                <Check className="h-2.5 w-2.5 text-white" />
+              </span>
             </div>
+
+            <p className="font-headline text-base font-bold text-[#0e1c16]">{displayName}</p>
+            <p className="text-xs text-[#6b7e73]">{user?.email}</p>
           </div>
 
-          {/* Financial Preferences Section */}
-          <div className="px-5 py-4 border-b border-white/5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-gray-300">Financial Profile</h3>
+          {/* Profile info */}
+          <div className="px-5 py-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-[#6b7e73]">Financial Profile</h3>
               {!isEditing && (
                 <button
                   onClick={handleEditClick}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1 transition-colors duration-300"
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-50"
                 >
-                  <Edit3 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <Edit3 className="h-3 w-3" />
                   Edit
                 </button>
               )}
             </div>
 
             {isEditing ? (
-              /* Edit Mode */
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Occupation</label>
+              <div className="space-y-2.5">
+                {[
+                  { key: 'occupation', label: 'Occupation', options: occupations },
+                  { key: 'ageGroup', label: 'Age Group', options: ageGroups },
+                  { key: 'financialGoal', label: 'Goal', options: goals },
+                ].map(({ key, label, options }) => (
                   <select
-                    value={editedPreferences.occupation}
-                    onChange={(e) => setEditedPreferences(prev => ({ ...prev, occupation: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#22262E] border border-white/5 rounded-xl text-sm text-gray-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 outline-none transition-all duration-300"
+                    key={key}
+                    value={editedPreferences[key]}
+                    onChange={(e) => setEditedPreferences((prev) => ({ ...prev, [key]: e.target.value }))}
+                    className="w-full rounded-xl border border-[#d4e8dc] bg-[#f0faf4] px-3 py-2.5 text-sm text-[#0e1c16] focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/15 transition"
                   >
-                    <option value="">Select occupation</option>
-                    {occupations.map(occ => (
-                      <option key={occ} value={occ}>{occ}</option>
-                    ))}
+                    <option value="">Select {label}</option>
+                    {options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
-                </div>
-                
-                <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Age Group</label>
-                  <select
-                    value={editedPreferences.ageGroup}
-                    onChange={(e) => setEditedPreferences(prev => ({ ...prev, ageGroup: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#22262E] border border-white/5 rounded-xl text-sm text-gray-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 outline-none transition-all duration-300"
-                  >
-                    <option value="">Select age group</option>
-                    {ageGroups.map(group => (
-                      <option key={group} value={group}>{group} years</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Financial Goal</label>
-                  <select
-                    value={editedPreferences.financialGoal}
-                    onChange={(e) => setEditedPreferences(prev => ({ ...prev, financialGoal: e.target.value }))}
-                    className="w-full px-3 py-2 bg-[#22262E] border border-white/5 rounded-xl text-sm text-gray-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 outline-none transition-all duration-300"
-                  >
-                    <option value="">Select goal</option>
-                    {goals.map(goal => (
-                      <option key={goal} value={goal}>{goal}</option>
-                    ))}
-                  </select>
-                </div>
+                ))}
 
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-2 pt-1">
                   <button
                     onClick={handleCancelEdit}
                     disabled={saveLoading}
-                    className="flex-1 py-2 px-3 border border-white/10 rounded-xl text-gray-300 text-sm font-medium hover:bg-white/5 transition-all duration-300"
+                    className="flex-1 rounded-xl border border-[#d4e8dc] py-2 text-sm font-semibold text-[#3d5246] transition hover:bg-[#e8f5ed]"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSavePreferences}
                     disabled={saveLoading || !editedPreferences.occupation || !editedPreferences.ageGroup || !editedPreferences.financialGoal}
-                    className="flex-1 py-2 px-3 bg-indigo-500 text-white rounded-xl text-sm font-medium hover:bg-indigo-600 transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="gradient-emerald flex-1 rounded-xl py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {saveLoading ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                        Saving...
-                      </>
-                    ) : (
-                      'Save Changes'
-                    )}
+                    {saveLoading ? 'Saving…' : 'Save'}
                   </button>
                 </div>
-                
-                <p className="text-xs text-gray-500 mt-2">
-                  * Changes will apply to new conversations
-                </p>
+                <p className="text-[11px] text-[#9aada3]">Changes apply to new conversations.</p>
               </div>
             ) : (
-              /* View Mode */
-              <div className="space-y-2">
-                <div className="flex items-center justify-between py-2 px-3 bg-[#22262E] rounded-xl">
-                  <span className="text-xs text-gray-500">Occupation</span>
-                  <span className="text-sm font-medium text-gray-200">{userPreferences?.occupation || 'Not set'}</span>
-                </div>
-                <div className="flex items-center justify-between py-2 px-3 bg-[#22262E] rounded-xl">
-                  <span className="text-xs text-gray-500">Age Group</span>
-                  <span className="text-sm font-medium text-gray-200">{userPreferences?.ageGroup || 'Not set'}</span>
-                </div>
-                <div className="flex items-center justify-between py-2 px-3 bg-[#22262E] rounded-xl">
-                  <span className="text-xs text-gray-500">Goal</span>
-                  <span className="text-sm font-medium text-gray-200">{userPreferences?.financialGoal || 'Not set'}</span>
-                </div>
+              <div className="space-y-1.5">
+                {[
+                  { label: 'Occupation', value: userPreferences?.occupation },
+                  { label: 'Age Group',  value: userPreferences?.ageGroup },
+                  { label: 'Goal',       value: userPreferences?.financialGoal },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between rounded-xl bg-[#f0faf4] px-3 py-2.5">
+                    <span className="text-xs text-[#6b7e73]">{label}</span>
+                    <span className="text-xs font-semibold text-[#0e1c16]">{value || '—'}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Account Info Section */}
-          <div className="px-5 py-3 border-b border-white/5">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500">Signed in via</span>
-              <span className="font-medium text-gray-300">
-                {user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'Email'}
+          {/* Footer actions */}
+          <div className="border-t border-[#e8f5ed] px-5 pb-4 pt-3">
+            <button className="mb-2.5 flex w-full items-center gap-3 rounded-xl border border-[#d4e8dc] bg-[#f8fcfa] px-4 py-3 text-left transition hover:bg-[#e8f5ed]">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 shadow-sm">
+                <ShieldCheck className="h-4 w-4" />
               </span>
-            </div>
-          </div>
+              <span>
+                <p className="text-sm font-semibold text-[#0e1c16]">Account Security</p>
+                <p className="text-[11px] text-[#6b7e73]">2FA and privacy settings</p>
+              </span>
+            </button>
 
-          {/* Footer - Logout Button */}
-          <div className="px-5 py-3 bg-[#22262E]">
             <button
               onClick={handleLogout}
               disabled={logoutLoading}
-              className={`w-full py-2.5 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+              className={`flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-bold transition ${
                 logoutLoading
-                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                  : 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
+                  ? 'cursor-not-allowed border-red-100 bg-red-50 text-red-400'
+                  : 'border-red-200 bg-white text-red-600 hover:bg-red-50'
               }`}
             >
-              {logoutLoading ? (
-                <>
-                  <span className="inline-block w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></span>
-                  Logging out...
-                </>
-              ) : (
-                <>
-                  <LogOut className="w-4 h-4" strokeWidth={1.5} />
-                  Logout
-                </>
-              )}
+              <LogOut className="h-4 w-4" />
+              {logoutLoading ? 'Signing out…' : 'Sign Out'}
             </button>
           </div>
         </div>
-      )}
-
-      {/* Backdrop - close dropdown when clicking outside */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => {
-            if (!isEditing) {
-              setIsOpen(false);
-            }
-          }}
-        />
       )}
     </div>
   );

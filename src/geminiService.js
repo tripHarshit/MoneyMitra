@@ -169,6 +169,51 @@ export const fetchGeminiResponse = async (userMessage, userContext, conversation
 /**
  * Request a structured lesson and quiz from Gemini for the Learning Hub
  */
+const getFallbackLesson = (userContext, currentLevel) => {
+  const goalText = userContext?.primaryGoal || 'financial growth';
+
+  const lessonBank = [
+    {
+      title: 'Mastering the 50/30/20 Rule',
+      content: `The **50/30/20 rule** is a simple framework for monthly cash flow planning. Allocate about **50%** of your income to essentials, **30%** to lifestyle, and **20%** to savings or debt reduction.
+
+For your goal of **${goalText}**, start by tracking one full month of real expenses and then moving each expense into these buckets. The purpose is not perfection, but consistency. Small monthly improvements compound into meaningful long-term outcomes.` ,
+      quiz: {
+        question: 'In the 50/30/20 model, which bucket is primarily meant for long-term wealth building?',
+        options: ['Needs (50%)', 'Savings and debt payoff (20%)', 'Wants (30%)', 'Entertainment add-ons'],
+        correctIndex: 1,
+        explanation: 'The 20% bucket is where wealth-building happens through savings, investing, and debt reduction.'
+      }
+    },
+    {
+      title: 'Emergency Fund Design That Actually Works',
+      content: `An emergency fund protects your plan from unexpected shocks like medical costs, job gaps, or urgent repairs. A practical target is **3-6 months** of essential expenses in a liquid account.
+
+Instead of waiting for a large lump sum, automate small weekly transfers. For **${goalText}**, consistency matters more than amount. Build the habit first, then increase contribution size over time.`,
+      quiz: {
+        question: 'What is the primary purpose of an emergency fund?',
+        options: ['To maximize returns', 'To reduce the impact of unexpected expenses', 'To replace retirement investing', 'To speculate on short-term stocks'],
+        correctIndex: 1,
+        explanation: 'Emergency funds are a risk buffer, not a return-maximization tool.'
+      }
+    },
+    {
+      title: 'Compounding and Time Horizon',
+      content: `Compounding means returns can generate their own returns over time. The longer your horizon, the greater this effect becomes.
+
+For **${goalText}**, focus on regular contributions and staying invested through market noise. Timing the market is difficult, but time in the market is a durable advantage for most long-term plans.`,
+      quiz: {
+        question: 'Which factor most strengthens compounding outcomes?',
+        options: ['Frequent switching between assets', 'Longer time horizon with regular investing', 'Only investing after market rallies', 'Avoiding all risk forever'],
+        correctIndex: 1,
+        explanation: 'Compounding benefits most from time and consistency, not frequent strategy changes.'
+      }
+    }
+  ];
+
+  return lessonBank[(Math.max(1, currentLevel) - 1) % lessonBank.length];
+};
+
 export const generateLesson = async (userContext, currentLevel) => {
   try {
     if (!apiKey) throw new Error('API key is not configured.');
@@ -242,7 +287,7 @@ Do not include any text outside the JSON object. Do not wrap in markdown \`\`\`j
     };
   } catch (error) {
     console.error('Error generating lesson. Raw error:', error);
-    throw new Error('Failed to generate lesson content.');
+    return getFallbackLesson(userContext, currentLevel);
   }
 };
 

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Wallet, Shield, BookOpen, PiggyBank, CreditCard, TrendingUp, Sparkles, Lock, Check } from 'lucide-react';
+import { Wallet, Shield, Bot, TrendingUp, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 
-const WelcomePage = ({ onStart, isLoading = false }) => {
+const WelcomePage = ({ onStart, isLoading = false, error = '' }) => {
   const [formData, setFormData] = useState({
     occupation: '',
     ageGroup: '',
-    financialGoal: ''
+    financialGoal: '',
   });
 
   const occupationOptions = [
@@ -16,226 +16,229 @@ const WelcomePage = ({ onStart, isLoading = false }) => {
     'Homemaker',
     'Retired',
     'Self-Employed',
-    'Other'
+    'Other',
   ];
 
-  const ageGroupOptions = [
-    '18-25',
-    '26-35',
-    '36-45',
-    '46-55',
-    '55+'
-  ];
+  const ageGroupOptions = ['18–25', '26–35', '36–45', '46–55', '55+'];
 
   const financialGoals = [
-    { 
-      id: 'Save Money', 
-      label: 'Save Money', 
-      icon: PiggyBank,
-      description: 'Build your savings and emergency fund'
-    },
-    { 
-      id: 'Manage Debt', 
-      label: 'Manage Debt', 
-      icon: CreditCard,
-      description: 'Manage and eliminate your debts'
-    },
-    { 
-      id: 'Learn Basics', 
-      label: 'Learn Basics', 
-      icon: BookOpen,
-      description: 'Understand personal finance fundamentals'
-    },
-    { 
-      id: 'Invest & Grow', 
-      label: 'Invest & Grow', 
-      icon: TrendingUp,
-      description: 'Learn to grow your money wisely'
-    }
+    { id: 'Wealth Growth',  icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', description: 'Aggressive portfolio expansion' },
+    { id: 'Save Money',     icon: Wallet,     color: 'text-sky-600',     bg: 'bg-sky-50',     border: 'border-sky-200',     description: 'Build a secure safety net' },
+    { id: 'Manage Debt',    icon: Shield,     color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-200',   description: 'Systematic debt reduction' },
+    { id: 'Learn Basics',   icon: Bot,        color: 'text-violet-600',  bg: 'bg-violet-50',  border: 'border-violet-200',  description: 'Build personal finance fundamentals' },
   ];
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const isFormComplete = formData.occupation && formData.financialGoal;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormComplete && onStart) {
-      onStart(formData);
-    }
+    if (isFormComplete && onStart) onStart(formData);
   };
 
+  const trustBadges = [
+    { icon: Shield, label: 'End-to-end encrypted' },
+    { icon: Bot,    label: 'Powered by Gemini AI' },
+    { icon: Sparkles, label: 'Personalized for you' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[#0F1115] relative overflow-hidden">
-      {/* Abstract Background Elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 rounded-full blur-3xl -translate-x-48 -translate-y-48"></div>
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-tl from-purple-500/10 to-indigo-500/5 rounded-full blur-3xl translate-x-40 translate-y-40"></div>
-      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      
-      {/* Main Content */}
-      <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
-        {/* Glassmorphism Card */}
-        <div className="w-full max-w-lg mx-auto">
-          <div className="glass rounded-3xl float-shadow p-8 relative">
-            
-            {/* Header Section */}
-            <div className="text-center mb-8">
-              {/* Logo */}
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/30">
-                <Wallet className="w-8 h-8 text-white" strokeWidth={1.5} />
-              </div>
-              
-              {/* Title */}
-              <h1 className="text-3xl font-semibold text-white mb-2">MoneyMitra</h1>
-              <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                Your Personal AI Financial Guide.<br />
-                <span className="text-indigo-400 font-medium">Simplified.</span>
-              </p>
-              
-              {/* Features List */}
-              <div className="flex flex-col gap-3 mb-6">
-                <div className="flex items-center justify-center space-x-3 text-gray-300">
-                  <Sparkles className="w-5 h-5 text-indigo-400" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">AI-Powered Financial Guidance</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3 text-gray-300">
-                  <Shield className="w-5 h-5 text-emerald-400" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">Secure & Private</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3 text-gray-300">
-                  <BookOpen className="w-5 h-5 text-purple-400" strokeWidth={1.5} />
-                  <span className="text-sm font-medium">Educational Focus</span>
-                </div>
-              </div>
+    <div className="min-h-screen bg-[#f0faf4] text-[#0e1c16]">
+      {/* Split layout on large screens */}
+      <div className="flex min-h-screen flex-col lg:flex-row">
+
+        {/* Left panel – brand/hero */}
+        <div className="sidebar-bg relative hidden flex-col justify-between px-12 py-16 lg:flex lg:w-[42%]">
+          {/* Decorative glow */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl" />
+            <div className="absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-emerald-400/10 blur-2xl" />
+          </div>
+
+          {/* Logo */}
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-emerald shadow-lg shadow-emerald-900/30">
+              <Wallet className="h-5 w-5 text-white" />
             </div>
+            <div>
+              <p className="font-headline text-lg font-extrabold text-white">MoneyMitra</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400/60">AI Financial Coach</p>
+            </div>
+          </div>
 
-            {/* Context Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
-              {/* Occupation Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  What describes you best?
-                </label>
-                <select
-                  value={formData.occupation}
-                  onChange={(e) => handleInputChange('occupation', e.target.value)}
-                  className="w-full px-4 py-3 bg-[#22262E] border border-white/5 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 text-gray-200 appearance-none cursor-pointer outline-none"
-                  required
-                >
-                  <option value="" className="bg-[#22262E]">Select your occupation</option>
-                  {occupationOptions.map((option) => (
-                    <option key={option} value={option} className="bg-[#22262E]">
-                      {option}
-                    </option>
-                  ))}
-                </select>
+          {/* Hero copy */}
+          <div className="relative space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+              <Sparkles className="h-3 w-3" /> Personalised just for you
+            </div>
+            <h1 className="font-headline text-4xl font-extrabold leading-tight tracking-tight text-white xl:text-5xl">
+              Your Fiscal<br />Sanctuary
+            </h1>
+            <p className="text-base leading-relaxed text-emerald-100/60">
+              Tell us a little about yourself and we'll tailor your AI coach, insights, and goals to fit your life perfectly.
+            </p>
+
+            {/* Trust badges */}
+            <div className="space-y-3 pt-2">
+              {trustBadges.map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-3">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15">
+                    <Icon className="h-3.5 w-3.5 text-emerald-300" />
+                  </div>
+                  <p className="text-sm font-medium text-emerald-200/70">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom caption */}
+          <p className="relative text-xs text-emerald-400/40">
+            Used by 1,200+ students &amp; professionals across India
+          </p>
+        </div>
+
+        {/* Right panel – form */}
+        <div className="flex flex-1 flex-col">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 px-6 pt-8 lg:hidden">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-emerald">
+              <Wallet className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-headline text-lg font-extrabold text-emerald-900">MoneyMitra</span>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 pb-36 pt-8 md:px-10 lg:px-14 lg:pt-16">
+            <div className="mx-auto max-w-lg">
+              <div className="mb-8">
+                <h2 className="font-headline text-3xl font-extrabold tracking-tight text-[#0e1c16]">Set up your profile</h2>
+                <p className="mt-1.5 text-sm text-[#6b7e73]">Takes 30 seconds — personalises everything.</p>
               </div>
 
-              {/* Age Group Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Age Group
-                </label>
-                <select
-                  value={formData.ageGroup}
-                  onChange={(e) => handleInputChange('ageGroup', e.target.value)}
-                  className="w-full px-4 py-3 bg-[#22262E] border border-white/5 rounded-2xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 text-gray-200 appearance-none cursor-pointer outline-none"
-                >
-                  <option value="" className="bg-[#22262E]">Select your age group</option>
-                  {ageGroupOptions.map((option) => (
-                    <option key={option} value={option} className="bg-[#22262E]">
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {error && (
+                <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+                  {error}
+                </div>
+              )}
 
-              {/* Financial Goal Cards */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3">
-                  What's your primary financial goal?
-                </label>
-                <div className="space-y-2">
-                  {financialGoals.map((goal) => {
-                    const IconComponent = goal.icon;
-                    return (
-                      <button
-                        key={goal.id}
-                        type="button"
-                        onClick={() => handleInputChange('financialGoal', goal.id)}
-                        className={`w-full p-4 rounded-2xl border text-left transition-all duration-300 transform hover:-translate-y-0.5 ${
-                          formData.financialGoal === goal.id
-                            ? 'border-indigo-500/50 bg-indigo-500/10 shadow-lg shadow-indigo-500/10'
-                            : 'border-white/5 bg-[#22262E] hover:border-white/10 hover:bg-[#2A2F38]'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            formData.financialGoal === goal.id 
-                              ? 'bg-indigo-500/20' 
-                              : 'bg-white/5'
-                          }`}>
-                            <IconComponent className={`w-5 h-5 ${
-                              formData.financialGoal === goal.id ? 'text-indigo-400' : 'text-gray-400'
-                            }`} strokeWidth={1.5} />
-                          </div>
-                          <div className="flex-1">
-                            <div className={`font-medium text-sm ${
-                              formData.financialGoal === goal.id ? 'text-indigo-300' : 'text-gray-200'
-                            }`}>{goal.label}</div>
-                            <div className={`text-xs mt-0.5 ${
-                              formData.financialGoal === goal.id ? 'text-indigo-400/70' : 'text-gray-500'
-                            }`}>
-                              {goal.description}
-                            </div>
-                          </div>
-                          {formData.financialGoal === goal.id && (
-                            <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center">
-                              <Check className="w-4 h-4 text-white" strokeWidth={2} />
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Occupation */}
+                <section>
+                  <label className="mb-2 block text-sm font-semibold text-[#0e1c16]">
+                    What best describes you?
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.occupation}
+                      onChange={(e) => handleInputChange('occupation', e.target.value)}
+                      className="w-full cursor-pointer appearance-none rounded-2xl border border-[#d4e8dc] bg-white px-5 py-4 text-sm text-[#0e1c16] shadow-sm transition focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/15"
+                      required
+                    >
+                      <option value="" disabled>Choose your occupation…</option>
+                      {occupationOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#9aada3]">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={2}>
+                        <path d="M4 6l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Age group */}
+                <section>
+                  <label className="mb-2 block text-sm font-semibold text-[#0e1c16]">Age group</label>
+                  <div className="flex flex-wrap gap-2">
+                    {ageGroupOptions.map((option) => {
+                      const selected = formData.ageGroup === option;
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => handleInputChange('ageGroup', option)}
+                          className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
+                            selected
+                              ? 'border-emerald-500 bg-emerald-600 text-white shadow-md shadow-emerald-900/15'
+                              : 'border-[#d4e8dc] bg-white text-[#3d5246] hover:border-emerald-300 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {/* Financial goal */}
+                <section>
+                  <label className="mb-2 block text-sm font-semibold text-[#0e1c16]">Primary financial goal</label>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {financialGoals.map((goal) => {
+                      const Icon = goal.icon;
+                      const selected = formData.financialGoal === goal.id;
+                      return (
+                        <button
+                          key={goal.id}
+                          type="button"
+                          onClick={() => handleInputChange('financialGoal', goal.id)}
+                          className={`relative flex flex-col items-start rounded-2xl border p-4 text-left transition ${
+                            selected
+                              ? `${goal.border} ${goal.bg} shadow-md`
+                              : 'border-[#d4e8dc] bg-white hover:border-emerald-200 hover:bg-emerald-50/50'
+                          }`}
+                        >
+                          {selected && (
+                            <div className="absolute right-3 top-3">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                             </div>
                           )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                          <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-xl ${selected ? goal.bg : 'bg-[#f0faf4]'}`}>
+                            <Icon className={`h-4.5 w-4.5 ${goal.color}`} />
+                          </div>
+                          <p className="font-headline text-sm font-bold text-[#0e1c16]">{goal.id}</p>
+                          <p className="mt-0.5 text-xs text-[#6b7e73]">{goal.description}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              </form>
+            </div>
+          </div>
 
-              {/* Get Started Button */}
+          {/* Fixed CTA */}
+          <div className="fixed bottom-0 left-0 right-0 border-t border-[#d4e8dc] bg-white/92 px-6 py-5 backdrop-blur-xl lg:left-[42%] md:px-10 lg:px-14">
+            <div className="mx-auto max-w-lg">
               <button
                 type="submit"
+                onClick={handleSubmit}
                 disabled={!isFormComplete || isLoading}
-                className={`w-full py-4 px-6 rounded-2xl font-semibold text-white transition-all duration-300 transform ${
+                className={`flex w-full items-center justify-center gap-2.5 rounded-2xl py-4 text-base font-bold text-white transition ${
                   isFormComplete && !isLoading
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:-translate-y-0.5 shadow-xl shadow-indigo-500/30'
-                    : 'bg-gray-700 cursor-not-allowed text-gray-400'
+                    ? 'gradient-emerald shadow-xl shadow-emerald-900/20 hover:brightness-110'
+                    : 'cursor-not-allowed bg-[#c0d4ca]'
                 }`}
               >
                 {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    Setting up your account...
-                  </span>
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Setting up your account…
+                  </>
                 ) : (
-                  'Start Your Financial Journey'
+                  <>
+                    Start with MoneyMitra
+                    <ArrowRight className="h-4 w-4" />
+                  </>
                 )}
               </button>
-
-              {/* Privacy Notice */}
-              <div className="text-center pt-2">
-                <div className="flex items-center justify-center space-x-2 text-gray-500">
-                  <Lock className="w-4 h-4" strokeWidth={1.5} />
-                  <span className="text-xs">Private & Educational. No data stored permanently.</span>
-                </div>
-              </div>
-              
-            </form>
+              <p className="mt-2.5 text-center text-xs text-[#9aada3]">
+                Free to use · No credit card required
+              </p>
+            </div>
           </div>
         </div>
       </div>
